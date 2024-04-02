@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.group10.mapper.CouponRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.group10.model.CouponRecordDO">
+        <result column="id" property="id" />
+        <result column="coupon_id" property="couponId" />
+        <result column="created_at" property="createdAt" />
+        <result column="usage_state" property="usageState" />
+        <result column="user_id" property="userId" />
+        <result column="user_name" property="userName" />
+        <result column="coupon_title" property="couponTitle" />
+        <result column="valid_from" property="validFrom" />
+        <result column="valid_until" property="validUntil" />
+        <result column="order_id" property="orderId" />
+        <result column="price_deducted" property="priceDeducted" />
+        <result column="condition_price" property="conditionPrice" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, coupon_id, created_at, usage_state, user_id, user_name, coupon_title, valid_from, valid_until, order_id, price_deducted, condition_price
+    </sql>
+
+    <!--批量锁定优惠券记录-->
+    <update id="lockUseStateBatch">
+
+        update coupon_record set use_state=#{useState} where user_id=#{userId} and use_state='NEW'
+        and id in
+
+        <foreach collection="lockCouponRecordIds" index="index" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+
+    </update>
+
+
+    <!--更新优惠券状态-->
+    <update id="updateState">
+
+        update coupon_record set use_state = #{useState} where id = #{couponRecordId}
+
+    </update>
+
+</mapper>

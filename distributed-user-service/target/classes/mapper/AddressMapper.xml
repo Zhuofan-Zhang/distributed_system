@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.group10.mapper.AddressMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.group10.model.AddressDO">
+        <id column="id" property="id" />
+        <result column="user_id" property="userId" />
+        <result column="default_status" property="defaultStatus" />
+        <result column="receiver_name" property="receiverName" />
+        <result column="phone" property="phone" />
+        <result column="state" property="state" />
+        <result column="city" property="city" />
+        <result column="region" property="region" />
+        <result column="detailed_address" property="detailedAddress" />
+        <result column="created_at" property="createdAt" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, user_id, default_status, receiver_name, phone, state, city, region, detailed_address, created_at
+    </sql>
+
+</mapper>

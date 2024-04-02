@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="distributed-common" />
+        <module name="distributed-loyalty-service" />
+        <module name="distributed-product-service" />
+        <module name="distributed-order-service" />
+        <module name="distributed-user-service" />
+        <module name="distributed-coupon-service" />
+        <module name="distributed-gateway" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="distributed-loyalty-service (1)" target="11" />
+      <module name="distributed-payment-service" target="11" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
