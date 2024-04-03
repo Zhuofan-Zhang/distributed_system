@@ -162,7 +162,11 @@ public class UserServiceImpl implements UserService {
             String cacheValue = redisTemplate.opsForValue().get(cacheKey);
             if (StringUtils.isNotBlank(cacheValue)) {
                 String loggedInNumber = String.valueOf(Integer.parseInt(cacheValue) - 1);
-                redisTemplate.opsForValue().set(cacheKey, loggedInNumber);
+                if ((Integer.parseInt(cacheValue) - 1) == 0) {
+                    redisTemplate.delete(cacheKey);
+                } else {
+                    redisTemplate.opsForValue().set(cacheKey, loggedInNumber);
+                }
                 return JsonData.buildCodeAndMsg(0, "Logout Successfully");
             } else {
                 return JsonData.buildError("No Logged In User");
@@ -192,9 +196,6 @@ public class UserServiceImpl implements UserService {
         request.setName(userDO.getName());
         request.setUserId(userDO.getId());
         JsonData jsonData = couponFeignService.addNewUserCoupon(request);
-//        if (jsonData.getCode() != 0) {
-//            throw new RuntimeException("发放优惠券异常");
-//        }
         log.info("发放新用户注册优惠券：{},结果:{}", request.toString(), jsonData.toString());
 
     }

@@ -17,7 +17,6 @@
         <module>distributed-user-service</module>
         <module>distributed-order-service</module>
         <module>distributed-coupon-service</module>
-        <module>distributed-loyalty-service</module>
         <module>distributed-gateway</module>
     </modules>
 

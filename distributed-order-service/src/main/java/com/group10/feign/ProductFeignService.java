@@ -3,6 +3,7 @@ package com.group10.feign;
 import com.group10.request.LockProductRequest;
 import com.group10.util.JsonData;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 

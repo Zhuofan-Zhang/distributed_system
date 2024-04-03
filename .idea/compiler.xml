@@ -8,7 +8,6 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="distributed-common" />
-        <module name="distributed-loyalty-service" />
         <module name="distributed-product-service" />
         <module name="distributed-order-service" />
         <module name="distributed-user-service" />
@@ -17,6 +16,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="distributed-loyalty-service" target="11" />
       <module name="distributed-loyalty-service (1)" target="11" />
       <module name="distributed-payment-service" target="11" />
     </bytecodeTargetLevel>

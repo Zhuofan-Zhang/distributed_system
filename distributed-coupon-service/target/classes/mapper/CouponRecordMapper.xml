@@ -26,7 +26,7 @@
     <!--批量锁定优惠券记录-->
     <update id="lockUseStateBatch">
 
-        update coupon_record set use_state=#{useState} where user_id=#{userId} and use_state='NEW'
+        update coupon_record set usage_state=#{useState} where user_id=#{userId} and usage_state='NEW'
         and id in
 
         <foreach collection="lockCouponRecordIds" index="index" item="id" separator="," open="(" close=")">
@@ -39,7 +39,7 @@
     <!--更新优惠券状态-->
     <update id="updateState">
 
-        update coupon_record set use_state = #{useState} where id = #{couponRecordId}
+        update coupon_record set usage_state = #{useState} where id = #{couponRecordId}
 
     </update>
 

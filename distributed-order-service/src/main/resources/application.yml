@@ -42,6 +42,13 @@ mybatis-plus:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 10000 # 连接超时时间（毫秒）
+        readTimeout: 30000 # 读取超时时间（毫秒）
+
 #设置日志级别,ERROR/WARN/INFO/DEBUG,默认是INFO以上才显示
 logging:
   level:

@@ -26,8 +26,8 @@ public class ProductOrderAddressVO {
     /**
      * 收发货人姓名
      */
-    @JsonProperty("receive_name")
-    private String receiveName;
+    @JsonProperty("receiver_name")
+    private String receiverName;
 
     /**
      * 收货人电话
@@ -37,7 +37,7 @@ public class ProductOrderAddressVO {
     /**
      * 省/直辖市
      */
-    private String province;
+    private String state;
 
     /**
      * 市
@@ -47,12 +47,12 @@ public class ProductOrderAddressVO {
     /**
      * 区
      */
-    private String region;
+    private String district;
 
     /**
      * 详细地址
      */
 
-    @JsonProperty("detail_address")
-    private String detailAddress;
+    @JsonProperty("detailed_address")
+    private String detailedAddress;
 }

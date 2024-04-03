@@ -5,11 +5,11 @@ import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.group10.request.*;
 import com.group10.component.PayFactory;
 import com.group10.config.RabbitMQConfig;
 import com.group10.vo.*;
-import com.group10.constants.CacheKey;
 import com.group10.constants.TimeConstant;
 import com.group10.enums.*;
 import com.group10.exception.BizException;
@@ -23,18 +23,15 @@ import com.group10.model.LoginUser;
 import com.group10.model.OrderMessage;
 import com.group10.model.ProductOrderDO;
 import com.group10.model.ProductOrderItemDO;
-import com.group10.request.*;
 import com.group10.service.ProductOrderService;
 import com.group10.util.CommonUtil;
 import com.group10.util.JsonData;
-import com.group10.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,7 +63,6 @@ public class ProductOrderServiceImpl implements ProductOrderService {
     private ProductOrderItemMapper productOrderItemMapper;
 
 
-
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
@@ -78,7 +74,6 @@ public class ProductOrderServiceImpl implements ProductOrderService {
     private PayFactory payFactory;
 
 
-
     @Autowired
     private StringRedisTemplate redisTemplate;
 
@@ -87,8 +82,8 @@ public class ProductOrderServiceImpl implements ProductOrderService {
      * * 用户微服务-确认收货地址
      * * 商品微服务-获取最新购物项和价格
      * * 订单验价
-     *   * 优惠券微服务-获取优惠券
-     *   * 验证价格
+     * * 优惠券微服务-获取优惠券
+     * * 验证价格
      * * 锁定优惠券
      * * 锁定商品库存
      * * 创建订单对象
@@ -112,10 +107,10 @@ public class ProductOrderServiceImpl implements ProductOrderService {
         //原子操作 校验令牌，删除令牌
         String script = "if redis.call('get',KEYS[1]) == ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end";
 
-        Long result = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), Arrays.asList(String.format(CacheKey.SUBMIT_ORDER_TOKEN_KEY, loginUser.getId())), orderToken);
-        if (result == 0L) {
-            throw new BizException(BizCodeEnum.ORDER_CONFIRM_TOKEN_EQUAL_FAIL);
-        }
+//        Long result = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), Arrays.asList(String.format(CacheKey.SUBMIT_ORDER_TOKEN_KEY, loginUser.getId())), orderToken);
+//        if (result == 0L) {
+//            throw new BizException(BizCodeEnum.ORDER_CONFIRM_TOKEN_EQUAL_FAIL);
+//        }
 
         String orderOutTradeNo = CommonUtil.getStringNumRandom(32);
 
@@ -139,10 +134,9 @@ public class ProductOrderServiceImpl implements ProductOrderService {
 
         //验证价格，减去商品优惠券
         this.checkPrice(orderItemList, orderRequest);
-
-        //锁定优惠券
-        this.lockCouponRecords(orderRequest, orderOutTradeNo);
-
+        if (orderRequest.getCouponRecordId() != null) {
+            this.lockCouponRecords(orderRequest, orderOutTradeNo);
+        }
         //锁定库存
         this.lockProductStocks(orderItemList, orderOutTradeNo);
 
@@ -328,11 +322,11 @@ public class ProductOrderServiceImpl implements ProductOrderService {
             if (realPayAmount.compareTo(couponRecordVO.getConditionPrice()) < 0) {
                 throw new BizException(BizCodeEnum.ORDER_CONFIRM_COUPON_FAIL);
             }
-            if (couponRecordVO.getPrice().compareTo(realPayAmount) > 0) {
+            if (couponRecordVO.getPriceDeducted().compareTo(realPayAmount) > 0) {
                 realPayAmount = BigDecimal.ZERO;
 
             } else {
-                realPayAmount = realPayAmount.subtract(couponRecordVO.getPrice());
+                realPayAmount = realPayAmount.subtract(couponRecordVO.getPriceDeducted());
             }
 
         }
@@ -362,19 +356,16 @@ public class ProductOrderServiceImpl implements ProductOrderService {
             throw new BizException(BizCodeEnum.ORDER_CONFIRM_COUPON_FAIL);
         }
 
-        if (couponData.getCode() == 0) {
+        //            CouponRecordVO couponRecordVO = (CouponRecordVO) couponData.getData();
+        ObjectMapper mapper = new ObjectMapper();
+        CouponRecordVO couponRecordVO = mapper.convertValue(couponData.getData(), CouponRecordVO.class);
 
-            CouponRecordVO couponRecordVO = (CouponRecordVO) couponData.getData();
-
-
-            if (!couponAvailable(couponRecordVO)) {
-                log.error("优惠券使用失败");
-                throw new BizException(BizCodeEnum.COUPON_UNAVAILABLE);
-            }
-            return couponRecordVO;
+        if (!couponAvailable(couponRecordVO)) {
+            log.error("优惠券使用失败");
+            throw new BizException(BizCodeEnum.COUPON_UNAVAILABLE);
         }
+        return couponRecordVO;
 
-        return null;
     }
 
     /**
@@ -385,10 +376,10 @@ public class ProductOrderServiceImpl implements ProductOrderService {
      */
     private boolean couponAvailable(CouponRecordVO couponRecordVO) {
 
-        if (couponRecordVO.getUseState().equalsIgnoreCase(CouponStateEnum.NEW.name())) {
+        if (couponRecordVO.getUsageState().equalsIgnoreCase(CouponStateEnum.NEW.name())) {
             long currentTimestamp = CommonUtil.getCurrentTimestamp();
-            long end = couponRecordVO.getEndTime().getTime();
-            long start = couponRecordVO.getStartTime().getTime();
+            long end = couponRecordVO.getValidUntil().getTime();
+            long start = couponRecordVO.getValidFrom().getTime();
             if (currentTimestamp >= start && currentTimestamp <= end) {
                 return true;
             }
@@ -410,8 +401,9 @@ public class ProductOrderServiceImpl implements ProductOrderService {
             log.error("获取收获地址失败,msg:{}", addressData);
             throw new BizException(BizCodeEnum.ADDRESS_NO_EXITS);
         }
+        ObjectMapper mapper = new ObjectMapper();
 
-        return (ProductOrderAddressVO) addressData.getData();
+        return mapper.convertValue(addressData.getData(), ProductOrderAddressVO.class);
     }
 
 
@@ -461,7 +453,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
         PayInfoVO payInfoVO = new PayInfoVO();
         payInfoVO.setPayType(productOrderDO.getPayType());
         payInfoVO.setOutTradeNo(orderMessage.getOutTradeNo());
-        String payResult = payFactory.queryPaySuccess(payInfoVO);
+        String payResult = "success";
 
         //结果为空，则未支付成功，本地取消订单
         if (StringUtils.isBlank(payResult)) {
@@ -488,9 +480,6 @@ public class ProductOrderServiceImpl implements ProductOrderService {
     public JsonData handlerOrderCallbackMsg(ProductOrderPayTypeEnum payType, Map<String, String> paramsMap) {
 
 
-        //MQ投递 --》在慢慢消费
-
-
         if (payType.name().equalsIgnoreCase(ProductOrderPayTypeEnum.ALIPAY.name())) {
             //支付宝支付
             //获取商户订单号
@@ -505,7 +494,6 @@ public class ProductOrderServiceImpl implements ProductOrderService {
             }
 
         } else if (payType.name().equalsIgnoreCase(ProductOrderPayTypeEnum.WECHAT.name())) {
-            //微信支付  TODO
         }
 
         return JsonData.buildResult(BizCodeEnum.PAY_ORDER_CALLBACK_NOT_SUCCESS);

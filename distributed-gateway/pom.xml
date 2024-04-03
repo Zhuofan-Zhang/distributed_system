@@ -55,7 +55,7 @@
 
 
     <build>
-        <finalName>xdclass-gateway</finalName>
+        <finalName>distributed-gateway</finalName>
 
         <plugins>
             <plugin>
@@ -102,13 +102,13 @@
                 <configuration>
                     <images>
                         <image>
-                            <name>xdclass-gateway</name>
+                            <name>distributed-gateway</name>
                             <build>
                                 <from>openjdk:11</from>
                                 <assembly>
                                     <descriptorRef>artifact</descriptorRef>
                                 </assembly>
-                                <cmd>java -jar maven/xdclass-gateway.jar</cmd>
+                                <cmd>java -jar maven/distributed-gateway.jar</cmd>
                             </build>
                         </image>
                     </images>

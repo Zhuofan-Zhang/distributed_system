@@ -19,7 +19,7 @@ public class MyBatisPlusGenerator {
                 .setAuthor("zzf")
                 // 生成路径，最好使用绝对路径，window路径是不一样的
                 //TODO  TODO  TODO  TODO
-                .setOutputDir("xdclass-order-service/src/main/java")
+                .setOutputDir("distributed-order-service/src/main/java")
                 // 文件覆盖
                 .setFileOverride(true)
                 // 主键策略
@@ -47,7 +47,7 @@ public class MyBatisPlusGenerator {
         dsConfig.setDbType(DbType.MYSQL)
                 .setDriverName("com.mysql.cj.jdbc.Driver")
                 //TODO  TODO  TODO  TODO
-                .setUrl("jdbc:mysql://127.0.0.1:3306/xdclass_order?useSSL=false")
+                .setUrl("jdbc:mysql://127.0.0.1:3306/cafe_order?useSSL=false")
                 .setUsername("root")
                 .setPassword("zzf19970112472X");
 
