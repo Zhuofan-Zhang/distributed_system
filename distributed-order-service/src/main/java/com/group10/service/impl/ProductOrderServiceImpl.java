@@ -29,6 +29,8 @@ import com.group10.util.CommonUtil;
 import com.group10.util.JsonData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +42,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.group10.enums.SendCodeEnum.USER_LOGIN;
+import static com.group10.enums.SendCodeEnum.USER_PLACE_ORDER;
 
 
 @Service
@@ -79,6 +84,9 @@ public class ProductOrderServiceImpl implements ProductOrderService {
     @Autowired
     private StringRedisTemplate redisTemplate;
 
+    @Autowired
+    private RedissonClient redissonClient;
+
     /**
      * * 防重提交
      * * 用户微服务-确认收货地址
@@ -102,71 +110,80 @@ public class ProductOrderServiceImpl implements ProductOrderService {
 
         LoginUser loginUser = LoginInterceptor.threadLocal.get();
 
-        String orderToken = orderRequest.getToken();
-        if (StringUtils.isBlank(orderToken)) {
-            throw new BizException(BizCodeEnum.ORDER_CONFIRM_TOKEN_NOT_EXIST);
-        }
-        //原子操作 校验令牌，删除令牌
-        String script = "if redis.call('get',KEYS[1]) == ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end";
+        String email = loginUser.getEmail();
+        String lockKey = "lock:order:" + email;
+        RLock rLock = redissonClient.getLock(lockKey);
 
-        Long result = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), Arrays.asList(String.format(CacheKey.SUBMIT_ORDER_TOKEN_KEY, loginUser.getId())), orderToken);
-        if (result == 0L) {
-            throw new BizException(BizCodeEnum.ORDER_CONFIRM_TOKEN_EQUAL_FAIL);
-        }
-
-        String orderOutTradeNo = CommonUtil.getStringNumRandom(32);
+        rLock.lock();
 
 
-        //获取收货地址详情
-        ProductOrderAddressVO addressVO = this.getUserAddress(orderRequest.getAddressId());
+        log.info("Order locked:{}", Thread.currentThread().getId());
 
-        log.info("收货地址信息:{}", addressVO);
+        try {
+            String orderToken = orderRequest.getToken();
+            if (StringUtils.isBlank(orderToken)) {
+                throw new BizException(BizCodeEnum.ORDER_CONFIRM_TOKEN_NOT_EXIST);
+            }
+            //原子操作 校验令牌，删除令牌
+            String script = "if redis.call('get',KEYS[1]) == ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end";
 
-        //获取用户加入购物车的商品
-        List<Long> productIdList = orderRequest.getProductIdList();
+            Long result = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), Arrays.asList(String.format(CacheKey.SUBMIT_ORDER_TOKEN_KEY, loginUser.getId())), orderToken);
+            if (result == 0L) {
+                throw new BizException(BizCodeEnum.ORDER_CONFIRM_TOKEN_EQUAL_FAIL);
+            }
 
-        JsonData cartItemDate = productFeignService.confirmOrderCartItem(productIdList);
-        List<OrderItemVO> orderItemList = cartItemDate.getData(new TypeReference<>() {
-        });
-        log.info("获取的商品:{}", orderItemList);
-        if (orderItemList == null) {
-            //购物车商品不存在
-            throw new BizException(BizCodeEnum.ORDER_CONFIRM_CART_ITEM_NOT_EXIST);
-        }
+            String orderOutTradeNo = CommonUtil.getStringNumRandom(32);
+            ProductOrderAddressVO addressVO = this.getUserAddress(orderRequest.getAddressId());
 
-        //验证价格，减去商品优惠券
-        this.checkPrice(orderItemList, orderRequest);
-        if (orderRequest.getCouponRecordId() != null) {
-            this.lockCouponRecords(orderRequest, orderOutTradeNo);
-        }
-        //锁定库存
-        this.lockProductStocks(orderItemList, orderOutTradeNo);
+            //获取用户加入购物车的商品
+            List<Long> productIdList = orderRequest.getProductIdList();
 
+            JsonData cartItemDate = productFeignService.confirmOrderCartItem(productIdList);
+            List<OrderItemVO> orderItemList = cartItemDate.getData(new TypeReference<>() {
+            });
+            log.info("获取的商品:{}", orderItemList);
+            if (orderItemList == null) {
+                //购物车商品不存在
+                throw new BizException(BizCodeEnum.ORDER_CONFIRM_CART_ITEM_NOT_EXIST);
+            }
 
-        //创建订单
-        ProductOrderDO productOrderDO = this.saveProductOrder(orderRequest, loginUser, orderOutTradeNo, addressVO);
-
-        //创建订单项
-        this.saveProductOrderItems(orderOutTradeNo, productOrderDO.getId(), orderItemList);
-
-        //发送延迟消息，用于自动关单
-        OrderMessage orderMessage = new OrderMessage();
-        orderMessage.setOutTradeNo(orderOutTradeNo);
-        rabbitTemplate.convertAndSend(rabbitMQConfig.getEventExchange(), rabbitMQConfig.getOrderCloseDelayRoutingKey(), orderMessage);
+            //验证价格，减去商品优惠券
+            this.checkPrice(orderItemList, orderRequest);
+            if (orderRequest.getCouponRecordId() != null) {
+                this.lockCouponRecords(orderRequest, orderOutTradeNo);
+            }
+            //锁定库存
+            this.lockProductStocks(orderItemList, orderOutTradeNo);
 
 
-        //创建支付
-        PayInfoVO payInfoVO = new PayInfoVO(orderOutTradeNo,
-                productOrderDO.getPayAmount(), orderRequest.getPayType(),
-                orderRequest.getClientType(), orderItemList.get(0).getProductTitle(), "", TimeConstant.ORDER_PAY_TIMEOUT_MILLS);
+            //创建订单
+            ProductOrderDO productOrderDO = this.saveProductOrder(orderRequest, loginUser, orderOutTradeNo, addressVO);
 
-        String payResult = payFactory.pay(payInfoVO);
-        if (StringUtils.isNotBlank(payResult)) {
-            log.info("创建支付订单成功:payInfoVO={},payResult={}", payInfoVO, payResult);
-            return JsonData.buildSuccess(payResult);
-        } else {
-            log.error("创建支付订单失败:payInfoVO={},payResult={}", payInfoVO, payResult);
-            return JsonData.buildResult(BizCodeEnum.PAY_ORDER_FAIL);
+            //创建订单项
+            this.saveProductOrderItems(orderOutTradeNo, productOrderDO.getId(), orderItemList);
+
+            //发送延迟消息，用于自动关单
+            OrderMessage orderMessage = new OrderMessage();
+            orderMessage.setOutTradeNo(orderOutTradeNo);
+            rabbitTemplate.convertAndSend(rabbitMQConfig.getEventExchange(), rabbitMQConfig.getOrderCloseDelayRoutingKey(), orderMessage);
+
+
+            //创建支付
+            PayInfoVO payInfoVO = new PayInfoVO(orderOutTradeNo,
+                    productOrderDO.getPayAmount(), orderRequest.getPayType(),
+                    orderRequest.getClientType(), orderItemList.get(0).getProductTitle(), "", TimeConstant.ORDER_PAY_TIMEOUT_MILLS);
+
+            String payResult = payFactory.pay(payInfoVO);
+            if (StringUtils.isNotBlank(payResult)) {
+                log.info("创建支付订单成功:payInfoVO={},payResult={}", payInfoVO, payResult);
+                return JsonData.buildSuccess(payResult);
+            } else {
+                log.error("创建支付订单失败:payInfoVO={},payResult={}", payInfoVO, payResult);
+                return JsonData.buildResult(BizCodeEnum.PAY_ORDER_FAIL);
+            }
+        } finally {
+            log.info("order unlocked");
+            rLock.unlock();
         }
 
     }
