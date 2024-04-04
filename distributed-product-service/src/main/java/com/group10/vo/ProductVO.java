@@ -6,14 +6,6 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 
-/**
- * <p>
- *
- * </p>
- *
- * @author 二当家小D
- * @since 2021-02-19
- */
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class ProductVO  {
@@ -22,34 +14,34 @@ public class ProductVO  {
     private Long id;
 
     /**
-     * 标题
+     * title
      */
     private String title;
 
     /**
-     * 封面图
+     * surface plot
      */
     @JsonProperty("cover_img")
     private String coverImg;
 
     /**
-     * 详情
+     * details
      */
     private String detail;
 
     /**
-     * 老价格
+     * old price
      */
     @JsonProperty("old_amount")
     private BigDecimal oldAmount;
 
     /**
-     * 新价格
+     * new price
      */
     private BigDecimal amount;
 
     /**
-     * 库存
+     * inventory
      */
     private Integer stock;
 

@@ -55,7 +55,7 @@ public class ProductServiceImpl implements ProductService {
     private ProductOrderFeignSerivce orderFeignSerivce;
 
     /**
-     * 商品分页
+     * product pagination
      * @param page
      * @param size
      * @return
@@ -79,7 +79,7 @@ public class ProductServiceImpl implements ProductService {
 
 
     /**
-     * 根据id找商品详情
+     * find product details by id
      * @param productId
      * @return
      */
@@ -93,7 +93,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     /**
-     * 批量查询
+     * batch query
      * @param productIdList
      * @return
      */
@@ -109,10 +109,10 @@ public class ProductServiceImpl implements ProductService {
 
 
     /**
-     * 锁定商品库存
+     * lock-in inventory
      *
-     *1)遍历商品，锁定每个商品购买数量
-     *2)每一次锁定的时候，都要发送延迟消息
+     *1)iterate over the items, locking the quantity of each item
+     *2)Every time lock, send a delayed message
      *
      * @param lockProductRequest
      * @return
@@ -123,20 +123,15 @@ public class ProductServiceImpl implements ProductService {
         String outTradeNo = lockProductRequest.getOrderOutTradeNo();
         List<OrderItemRequest> itemList  = lockProductRequest.getOrderItemList();
 
-        //一行代码，提取对象里面的id并加入到集合里面
         List<Long> productIdList = itemList.stream().map(OrderItemRequest::getProductId).collect(Collectors.toList());
-        //批量查询
         List<ProductVO> productVOList = this.findProductsByIdBatch(productIdList);
-        //分组
         Map<Long,ProductVO> productMap = productVOList.stream().collect(Collectors.toMap(ProductVO::getId,Function.identity()));
 
         for(OrderItemRequest item:itemList){
-            //锁定商品记录
             int rows = productMapper.lockProductStock(item.getProductId(),item.getBuyNum());
             if(rows != 1){
                 throw new BizException(BizCodeEnum.ORDER_CONFIRM_LOCK_PRODUCT_FAIL);
             }else {
-                //插入商品product_task
                 ProductVO productVO = productMap.get(item.getProductId());
                 ProductTaskDO productTaskDO = new ProductTaskDO();
                 productTaskDO.setBuyNum(item.getBuyNum());
@@ -145,15 +140,14 @@ public class ProductServiceImpl implements ProductService {
                 productTaskDO.setProductName(productVO.getTitle());
                 productTaskDO.setOutTradeNo(outTradeNo);
                 productTaskMapper.insert(productTaskDO);
-                log.info("商品库存锁定-插入商品product_task成功:{}",productTaskDO);
+                log.info("Item inventory lock - Insert item product_task successfully:{}",productTaskDO);
 
-                // 发送MQ延迟消息，介绍商品库存
                 ProductMessage productMessage = new ProductMessage();
                 productMessage.setOutTradeNo(outTradeNo);
                 productMessage.setTaskId(productTaskDO.getId());
 
                 rabbitTemplate.convertAndSend(rabbitMQConfig.getEventExchange(),rabbitMQConfig.getStockReleaseDelayRoutingKey(),productMessage);
-                log.info("商品库存锁定信息延迟消息发送成功:{}",productMessage);
+                log.info("Goods inventory lock information delay message sent successfully:{}",productMessage);
 
             }
 
@@ -163,23 +157,23 @@ public class ProductServiceImpl implements ProductService {
 
 
     /**
-     * 释放商品库存
+     * inventory release
      * @param productMessage
      * @return
      */
     @Override
     public boolean releaseProductStock(ProductMessage productMessage) {
 
-        //查询工作单状态
+        //example query the work order status
         ProductTaskDO taskDO = productTaskMapper.selectOne(new QueryWrapper<ProductTaskDO>().eq("id",productMessage.getTaskId()));
         if(taskDO == null){
-            log.warn("工作单不存在，消息体为:{}",productMessage);
+            log.warn("The work order does not exist. The message body is:{}",productMessage);
         }
 
-        //lock状态才处理
+        //The lock status is processed
         if(taskDO.getLockState().equalsIgnoreCase(StockTaskStateEnum.LOCK.name())){
 
-            //查询订单状态
+            //Check order status
             JsonData jsonData = orderFeignSerivce.queryProductOrderState(productMessage.getOutTradeNo());
 
             if(jsonData.getCode() == 0){
@@ -187,34 +181,29 @@ public class ProductServiceImpl implements ProductService {
                 String state = jsonData.getData().toString();
 
                 if(ProductOrderStateEnum.NEW.name().equalsIgnoreCase(state)){
-                    //状态是NEW新建状态，则返回给消息队，列重新投递
-                    log.warn("订单状态是NEW,返回给消息队列，重新投递:{}",productMessage);
+                    log.warn("The order status is NEW, returned to the message queue, and redelivered:{}",productMessage);
                     return false;
                 }
 
-                //如果是已经支付
                 if(ProductOrderStateEnum.PAY.name().equalsIgnoreCase(state)){
-                    //如果已经支付，修改task状态为finish
                     taskDO.setLockState(StockTaskStateEnum.FINISH.name());
                     productTaskMapper.update(taskDO,new QueryWrapper<ProductTaskDO>().eq("id",productMessage.getTaskId()));
-                    log.info("订单已经支付，修改库存锁定工作单FINISH状态:{}",productMessage);
+                    log.info("Order has been paid, modify inventory lock work order FINISH status:{}",productMessage);
                     return true;
                 }
             }
 
-            //订单不存在，或者订单被取消，确认消息,修改task状态为CANCEL,恢复优惠券使用记录为NEW
-            log.warn("订单不存在，或者订单被取消，确认消息,修改task状态为CANCEL,恢复商品库存,message:{}",productMessage);
+            log.warn("The order does not exist, or the order is canceled, confirm the message, change the task status to CANCEL, restore the inventory of the item, message:{}",productMessage);
             taskDO.setLockState(StockTaskStateEnum.CANCEL.name());
             productTaskMapper.update(taskDO,new QueryWrapper<ProductTaskDO>().eq("id",productMessage.getTaskId()));
 
 
-            //恢复商品库存，集锁定库存的值减去当前购买的值
             productMapper.unlockProductStock(taskDO.getProductId(),taskDO.getBuyNum());
 
             return true;
 
         } else {
-            log.warn("工作单状态不是LOCK,state={},消息体={}",taskDO.getLockState(),productMessage);
+            log.warn("The work order status is not LOCK,state={},message body={}",taskDO.getLockState(),productMessage);
             return true;
         }
 

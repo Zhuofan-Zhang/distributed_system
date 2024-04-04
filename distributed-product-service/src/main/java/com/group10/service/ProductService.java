@@ -11,7 +11,7 @@ import java.util.Map;
 public interface ProductService {
 
     /**
-     * 分页查询商品列表
+     * pagination query product list
      * @param page
      * @param size
      * @return
@@ -19,28 +19,28 @@ public interface ProductService {
     Map<String,Object> page(int page, int size);
 
     /**
-     * 根据id找商品详情
+     * Find product details based on id
      * @param productId
      * @return
      */
     ProductVO findDetailById(long productId);
 
     /**
-     * 根据id批量查询商品
+     * Batch query products by id
      * @param productIdList
      * @return
      */
     List<ProductVO> findProductsByIdBatch(List<Long> productIdList);
 
     /**
-     * 锁定商品库存
+     * Lock-in inventory
      * @param lockProductRequest
      * @return
      */
     JsonData lockProductStock(LockProductRequest lockProductRequest);
 
     /**
-     * 释放商品库存
+     * Inventory release
      * @param productMessage
      * @return
      */

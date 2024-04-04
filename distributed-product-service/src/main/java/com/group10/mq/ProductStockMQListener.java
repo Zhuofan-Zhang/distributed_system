@@ -26,12 +26,6 @@ public class ProductStockMQListener {
 
     /**
      *
-     * 重复消费-幂等性
-     *
-     * 消费失败，重新入队后最大重试次数：
-     *  如果消费失败，不重新入队，可以记录日志，然后插到数据库人工排查
-     *
-     *  消费者这块还有啥问题，大家可以先想下，然后给出解决方案
      *
      * @param recordMessage
      * @param message
@@ -41,22 +35,21 @@ public class ProductStockMQListener {
     @RabbitHandler
     public void releaseProductStock(ProductMessage productMessage, Message message, Channel channel) throws IOException {
 
-        log.info("监听到消息：releaseProductStock消息内容：{}", productMessage);
+        log.info("Monitored message: releaseProductStock Message content:{}", productMessage);
         long msgTag = message.getMessageProperties().getDeliveryTag();
 
         boolean flag = productService.releaseProductStock(productMessage);
 
         try {
             if (flag) {
-                //确认消息消费成功
                 channel.basicAck(msgTag, false);
             }else {
                 channel.basicReject(msgTag,true);
-                log.error("释放商品库存失败 flag=false,{}",productMessage);
+                log.error("failed to release commodity inventory flag=false,{}",productMessage);
             }
 
         } catch (IOException e) {
-            log.error("释放商品库存异常:{},msg:{}",e,productMessage);
+            log.error("release abnormal inventory of goods:{},msg:{}",e,productMessage);
             channel.basicReject(msgTag,true);
         }
 

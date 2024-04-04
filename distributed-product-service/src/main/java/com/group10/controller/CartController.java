@@ -62,9 +62,9 @@ public class CartController {
         return JsonData.buildSuccess();
     }
 
-    @ApiOperation("获取对应订单的商品信息")
+    @ApiOperation("get the product information of the corresponding order")
     @PostMapping("confirm_order_cart_items")
-    public JsonData confirmOrderCartItems(@ApiParam("商品id列表") @RequestBody List<Long> productIdList){
+    public JsonData confirmOrderCartItems(@ApiParam("product id list") @RequestBody List<Long> productIdList){
 
         List<CartItemVO> cartItemVOList = cartService.confirmOrderCartItems(productIdList);
 

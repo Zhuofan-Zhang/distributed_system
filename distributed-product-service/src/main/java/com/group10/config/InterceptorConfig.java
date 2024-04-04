@@ -16,10 +16,10 @@ public class InterceptorConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
 
         registry.addInterceptor(new LoginInterceptor())
-                //拦截的路径
+                //path of interception
                 .addPathPatterns("/api/cart/*/**","/api/product/*/lock_products")
 
-                //排查不拦截的路径
+                //check for unblocked paths
                 .excludePathPatterns("");
 
     }

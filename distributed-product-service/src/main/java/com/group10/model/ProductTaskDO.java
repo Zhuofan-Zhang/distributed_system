@@ -9,14 +9,6 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 import java.util.Date;
 
-/**
- * <p>
- *
- * </p>
- *
- * @author 二当家小D
- * @since 2021-02-25
- */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("product_task")
@@ -27,24 +19,12 @@ public class ProductTaskDO implements Serializable {
       @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    /**
-     * 商品id
-     */
     private Long productId;
 
-    /**
-     * 购买数量
-     */
     private Integer buyNum;
 
-    /**
-     * 商品标题
-     */
     private String productName;
 
-    /**
-     * 锁定状态锁定LOCK  完成FINISH-取消CANCEL
-     */
     private String lockState;
 
     private String outTradeNo;

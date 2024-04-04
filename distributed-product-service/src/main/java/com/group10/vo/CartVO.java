@@ -8,33 +8,33 @@ import java.util.List;
 public class CartVO {
 
     /**
-     * 购物项
+     * purchased items
      */
     @JsonProperty("cart_items")
     private List<CartItemVO> cartItems;
 
 
     /**
-     * 购买总件数
+     * total of purchases
      */
     @JsonProperty("total_num")
     private Integer totalNum;
 
     /**
-     * 购物车总价格
+     * total price of cart
      */
     @JsonProperty("total_amount")
     private BigDecimal totalAmount;
 
     /**
-     * 购物车实际支付价格
+     * actual payment price of cart
      */
     @JsonProperty("real_pay_amount")
     private BigDecimal realPayAmount;
 
 
     /**
-     * 总件数
+     * total number of packages
      * @return
      */
     public Integer getTotalNum() {
@@ -46,7 +46,7 @@ public class CartVO {
     }
 
     /**
-     * 总价格
+     * total price
      * @return
      */
     public BigDecimal getTotalAmount() {
@@ -61,7 +61,7 @@ public class CartVO {
     }
 
     /**
-     * 购物车里面实际支付的价格
+     * actual price paid in the cart
      * @return
      */
     public BigDecimal getRealPayAmount() {

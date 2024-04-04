@@ -9,30 +9,30 @@ import java.util.List;
 public interface CartService {
 
     /**
-     * 添加是商品到购物车
+     * Add items to cart
      * @param cartItemRequest
      */
     void addToCart(CartItemRequest cartItemRequest);
 
     /**
-     * 清空购物车
+     * empty cart
      */
     void clear();
 
     /**
-     * 查看我的购物车
+     * view my cart
      * @return
      */
     CartVO getMyCart();
 
     /**
-     * 删除购物项
+     * delete items
      * @param productId
      */
     void deleteItem(long productId);
 
     /**
-     * 修改购物车商品数量
+     * modify the quantity of shopping cart items
      * @param cartItemRequest
      */
     void changeItemNum(CartItemRequest cartItemRequest);
