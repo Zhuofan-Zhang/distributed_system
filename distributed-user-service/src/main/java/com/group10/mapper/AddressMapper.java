@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
  * <p>
- * 电商-公司收发货地址表 Mapper 接口
+ * E-commerce-Company delivery and delivery address table Mapper interface
  * </p>
  *
  * @author zzf

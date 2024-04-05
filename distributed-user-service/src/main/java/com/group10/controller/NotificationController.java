@@ -62,7 +62,7 @@ public class NotificationController {
             out.close();
 
         } catch (IOException e) {
-            log.error("获取验证码失败:{}", e);
+            log.error("Failed to obtain verification code:{}", e);
         }
     }
 

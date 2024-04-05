@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface CouponFeignService {
 
     /**
-     * 新用户注册发放优惠券
+     * New user registration and coupons issued
      * @param newUserCouponRequest
      * @return
      */

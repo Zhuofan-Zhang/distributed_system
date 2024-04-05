@@ -6,15 +6,15 @@ import lombok.Data;
 
 
 @Data
-@ApiModel(value = "登录对象",description = "用户登录请求对象")
+@ApiModel(value = "Login object",description = "User login request object")
 public class UserLoginRequest {
 
 
 
-    @ApiModelProperty(value = "邮箱", example = "794666918@qq.com")
+    @ApiModelProperty(value = "email", example = "794666918@qq.com")
     private String email;
 
-    @ApiModelProperty(value = "密码", example = "123456")
+    @ApiModelProperty(value = "password", example = "123456")
     private String pwd;
 
 

@@ -13,8 +13,8 @@ import java.util.Properties;
 public class CaptchaConfig {
 
     /**
-     * 验证码配置
-     * Kaptcha配置类名
+     * Verification code configuration
+     * Kaptcha configuration class name
      *
      * @return
      */
@@ -30,18 +30,18 @@ public class CaptchaConfig {
 //		properties.setProperty(Constants.KAPTCHA_IMAGE_HEIGHT, "34");
 //		properties.setProperty(Constants.KAPTCHA_TEXTPRODUCER_FONT_SIZE, "25");
 //		//properties.setProperty(Constants.KAPTCHA_SESSION_KEY, "code");
-        //验证码个数
+
         properties.setProperty(Constants.KAPTCHA_TEXTPRODUCER_CHAR_LENGTH, "4");
 //		properties.setProperty(Constants.KAPTCHA_TEXTPRODUCER_FONT_NAMES, "Courier");
-        //字体间隔
+
         properties.setProperty(Constants.KAPTCHA_TEXTPRODUCER_CHAR_SPACE,"8");
-        //干扰线颜色
+
 //		properties.setProperty(Constants.KAPTCHA_NOISE_COLOR, "white");
-        //干扰实现类
+
         properties.setProperty(Constants.KAPTCHA_NOISE_IMPL, "com.google.code.kaptcha.impl.NoNoise");
-        //图片样式
+
         properties.setProperty(Constants.KAPTCHA_OBSCURIFICATOR_IMPL, "com.google.code.kaptcha.impl.WaterRipple");
-        //文字来源
+
         properties.setProperty(Constants.KAPTCHA_TEXTPRODUCER_CHAR_STRING, "0123456789");
         Config config = new Config(properties);
         kaptcha.setConfig(config);
