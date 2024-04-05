@@ -13,33 +13,15 @@ import java.util.Date;
 public class JWTUtil {
 
 
-    /**
-     * token 过期时间，正常是7天，方便测试我们改为70
-     */
     private static final long EXPIRE = 1000 * 60 * 60 * 24 * 7 * 10;
 
-    /**
-     * 加密的秘钥
-     */
     private static final String SECRET = "xdclass.net666";
 
-    /**
-     * 令牌前缀
-     */
     private static final String TOKEN_PREFIX = "xdclass1024shop";
 
-    /**
-     * subject
-     */
     private static final String SUBJECT = "xdclass";
 
 
-    /**
-     * 根据用户信息，生成令牌
-     *
-     * @param loginUser
-     * @return
-     */
     public static String geneJsonWebToken(LoginUser loginUser) {
 
         if (loginUser == null) {
@@ -61,12 +43,6 @@ public class JWTUtil {
     }
 
 
-    /**
-     * 校验token的方法
-     *
-     * @param token
-     * @return
-     */
     public static Claims checkJWT(String token) {
 
         try {

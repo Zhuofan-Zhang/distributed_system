@@ -23,14 +23,10 @@ public class SwaggerConfiguration {
         return new Docket(DocumentationType.OAS_30)
                 .groupName("user-interface-doc")
                 .pathMapping("/")
-                // 定义是否开启swagger，false为关闭，可以通过变量控制，线上关闭
                 .enable(true)
-                //配置api文档元信息
                 .apiInfo(apiInfo())
-                // 选择哪些接口作为swagger的doc发布
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.group10"))
-                //正则匹配请求路径，并分配至当前分组
                 .paths(PathSelectors.ant("/api/**"))
                 .build()
                 .globalRequestParameters(globalReqeustParameters())
@@ -45,14 +41,11 @@ public class SwaggerConfiguration {
                 .groupName("admin-interface-doc")
                 .pathMapping("/")
 
-                //定义是否开启Swagger，false是关闭，可以通过变量去控制，线上关闭
                 .enable(true)
 
-                //配置文档的元信息
                 .apiInfo(apiInfo())
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.group10"))
-                //正则匹配请求路径，并分配到当前项目组
                 .paths(PathSelectors.ant("/admin/**"))
                 .build();
     }
@@ -62,19 +55,11 @@ public class SwaggerConfiguration {
         List<RequestParameter> parameters = new ArrayList<>();
         parameters.add(new RequestParameterBuilder()
                 .name("token")
-                .description("登录令牌")
+                .description("Login token")
                 .in(ParameterType.HEADER)
                 .query(q -> q.model(m -> m.scalarModel(ScalarType.STRING)))
                 .required(false)
                 .build());
-
-//        parameters.add(new RequestParameterBuilder()
-//                .name("token2")
-//                .description("登录令牌")
-//                .in(ParameterType.HEADER)
-//                .query(q -> q.model(m -> m.scalarModel(ScalarType.STRING)))
-//                .required(false)
-//                .build());
 
         return parameters;
 
@@ -90,7 +75,7 @@ public class SwaggerConfiguration {
         List<Response> list = new ArrayList<>();
         list.add(new ResponseBuilder()
                 .code("4xx")
-                .description("请求错误，根据code和msg检查")
+                .description("Request failed，please reference to code and msg")
                 .build());
 
         return list;

@@ -15,10 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-/**
- * @author zzf
- * @since 2023-08-29
- */
 
 @Api(tags = "user module")
 @RestController

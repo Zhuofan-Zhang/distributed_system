@@ -8,14 +8,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
-/**
- * <p>
- *
- * </p>
- *
- * @author zzf
- * @since 2023-09-09
- */
+
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("coupon")

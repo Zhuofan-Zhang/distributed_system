@@ -13,14 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-/**
- * <p>
- *  前端控制器
- * </p>
- *
- * @author zzf
- * @since 2023-09-09
- */
+
 @RestController
 @RequestMapping("/api/coupon_record/v1")
 public class CouponRecordController {

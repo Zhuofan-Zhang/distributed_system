@@ -9,10 +9,9 @@
         <outputRelativeToContentRoot value="true" />
         <module name="distributed-common" />
         <module name="distributed-product-service" />
-        <module name="distributed-order-service" />
         <module name="distributed-user-service" />
         <module name="distributed-coupon-service" />
-        <module name="distributed-gateway" />
+        <module name="distributed-order-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

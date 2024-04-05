@@ -8,10 +8,7 @@ import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-/**
- * @author zzf
- * @since 2023-08-29
- */
+
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("user")

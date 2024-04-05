@@ -1,21 +1,11 @@
 package com.group10.enums;
 
-/**
- * 收货地址状态
- */
 
-//中文 TODO
 public enum AddressStatusEnum {
 
 
-    /**
-     * 是默认收货地址
-     */
     DEFAULT_STATUS(1),
 
-    /**
-     * 非默认收货地址
-     */
     COMMON_STATUS(0);
 
     private int status;

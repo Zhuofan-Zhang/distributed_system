@@ -9,14 +9,7 @@ import com.group10.util.JsonData;
 
 import java.util.Map;
 
-/**
- * <p>
- *  Service class
- * </p>
- *
- * @author zzf
- * @since 2023-09-16
- */
+
 public interface ProductOrderService {
     /**
      * Creating Orders

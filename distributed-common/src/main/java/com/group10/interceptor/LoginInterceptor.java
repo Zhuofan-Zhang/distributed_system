@@ -38,10 +38,6 @@ public class LoginInterceptor implements HandlerInterceptor {
 
             LoginUser loginUser = LoginUser.builder().id(userId).avatar(avatar).name(name).email(email).build();
 
-            //通过attribute传递用户信息
-            //request.setAttribute("loginUser",loginUser);
-
-            //通过threadLocal传递用户登录信息
             threadLocal.set(loginUser);
             return true;
         }

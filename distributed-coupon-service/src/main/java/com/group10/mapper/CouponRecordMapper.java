@@ -6,14 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-/**
- * <p>
- *  Mapper 接口
- * </p>
- *
- * @author zzf
- * @since 2023-09-09
- */
+
 public interface CouponRecordMapper extends BaseMapper<CouponRecordDO> {
 
     /**

@@ -9,14 +9,7 @@ import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-/**
- * <p>
- *
- * </p>
- *
- * @author zzf
- * @since 2023-09-16
- */
+
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("product_order_item")

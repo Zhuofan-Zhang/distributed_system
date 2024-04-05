@@ -6,14 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-/**
- * <p>
- *  Mapper api
- * </p>
- *
- * @author zzf
- * @since 2023-09-16
- */
+
 public interface ProductOrderItemMapper extends BaseMapper<ProductOrderItemDO> {
     void insertBatch( @Param("orderItemList") List<ProductOrderItemDO> list);
 

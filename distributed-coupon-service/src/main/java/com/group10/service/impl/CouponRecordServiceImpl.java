@@ -33,14 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * <p>
- *  服务实现类
- * </p>
- *
- * @author zzf
- * @since 2023-09-09
- */
+
 @Service
 @Slf4j
 public class CouponRecordServiceImpl implements CouponRecordService {

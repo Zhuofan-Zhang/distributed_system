@@ -31,7 +31,6 @@ public class CommonUtil {
             if (ipAddress == null || ipAddress.length() == 0 || "unknown".equalsIgnoreCase(ipAddress)) {
                 ipAddress = request.getRemoteAddr();
                 if (ipAddress.equals("127.0.0.1")) {
-                    // 根据网卡取本机配置的IP
                     InetAddress inet = null;
                     try {
                         inet = InetAddress.getLocalHost();
@@ -41,10 +40,7 @@ public class CommonUtil {
                     ipAddress = inet.getHostAddress();
                 }
             }
-            // 对于通过多个代理的情况，第一个IP为客户端真实IP,多个IP按照','分割
             if (ipAddress != null && ipAddress.length() > 15) {
-                // "***.***.***.***".length()
-                // = 15
                 if (ipAddress.indexOf(",") > 0) {
                     ipAddress = ipAddress.substring(0, ipAddress.indexOf(","));
                 }
@@ -90,14 +86,7 @@ public class CommonUtil {
         return UUID.randomUUID().toString().replaceAll("-", "").substring(0, 32);
     }
 
-    /**
-     * 生成指定长度随机字母和数字
-     *
-     * @param length
-     * @return
-     */
     public static String getStringNumRandom(int length) {
-        //生成随机数字和字母,
         Random random = new Random();
         StringBuilder saltString = new StringBuilder(length);
         for (int i = 1; i <= length; ++i) {

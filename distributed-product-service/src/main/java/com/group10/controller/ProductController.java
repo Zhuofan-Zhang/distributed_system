@@ -13,14 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-/**
- * <p>
- * front controller
- * </p>
- *
- * @author zzf
- * @since 2023-09-12
- */
+
 @RestController
 @Api("product details service")
 @RequestMapping("/api/product/v1")
