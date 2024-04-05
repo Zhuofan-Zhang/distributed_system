@@ -25,9 +25,9 @@ spring:
 #数据库配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/cafe_coupon?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
-    username: root
-    password: zzf19970112472X
+    url: jdbc:mysql://8.130.44.244:3306/cafe_coupon?allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: ds
+    password: distributedsystem
 
 #redis 配置
   redis:
@@ -64,4 +64,4 @@ mqconfig:
   coupon_release_routing_key: coupon.release.routing.key
 
   #消息过期时间,毫秒,临时改为6分钟
-  ttl: 360000
+  ttl: 60000

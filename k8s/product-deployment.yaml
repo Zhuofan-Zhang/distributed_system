@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: distributed-product-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: distributed-product-service
+  template:
+    metadata:
+      labels:
+        app: distributed-product-service
+    spec:
+      containers:
+        - name: distributed-product-service
+          image: public.ecr.aws/l1r4r3i8/distributed-product-service:latest
+          ports:
+            - containerPort: 9003
+
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: distributed-product-service-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: distributed-product-service
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+

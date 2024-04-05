@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: distributed-coupon-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: distributed-coupon-service
+  template:
+    metadata:
+      labels:
+        app: distributed-coupon-service
+    spec:
+      containers:
+        - name: distributed-coupon-service
+          image: public.ecr.aws/l1r4r3i8/distributed-coupon-service:latest
+          ports:
+            - containerPort: 9002
+          resources:
+            requests:
+              cpu: "250m" # 请求 0.25 CPU 核心
+            limits:
+              cpu: "500m"
+
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: distributed-coupon-service-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: distributed-coupon-service
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+

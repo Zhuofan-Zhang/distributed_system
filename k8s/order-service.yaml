@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: distributed-order-service
+spec:
+  selector:
+    app: distributed-order-service
+  ports:
+    - protocol: TCP
+      port: 9004
+      targetPort: 9004
+  type: LoadBalancer

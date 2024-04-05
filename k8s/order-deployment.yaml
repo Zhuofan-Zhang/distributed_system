@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: distributed-order-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: distributed-order-service
+  template:
+    metadata:
+      labels:
+        app: distributed-order-service
+    spec:
+      containers:
+        - name: distributed-order-service
+          image: public.ecr.aws/l1r4r3i8/distributed-order-service:latest
+          ports:
+            - containerPort: 9004
+
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: distributed-order-service-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: distributed-order-service
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+
