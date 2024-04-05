@@ -20,19 +20,19 @@ public class MailServiceImpl implements MailService {
 
     @Override
     public void sendMail(String to, String subject, String content) {
-        //创建SimpleMailMessage对象
+        //Create SimpleMailMessage object
         SimpleMailMessage message = new SimpleMailMessage();
-        //邮件发送人
+        //Email sender
         message.setFrom(from);
-        //邮件接收人
+        //Email recipient
         message.setTo(to);
-        //邮件主题
+        //email subject
         message.setSubject(subject);
-        //邮件内容
+        //content
         message.setText(content);
-        //发送邮件
+        //send the email
         mailSender.send(message);
-        log.info("邮件发成功:{}",message);
+        log.info("Email sent successfully:{}",message);
     }
 
 

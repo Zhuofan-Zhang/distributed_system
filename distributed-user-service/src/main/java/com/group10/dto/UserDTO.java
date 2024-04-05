@@ -7,34 +7,34 @@ public class UserDTO {
     private Long id;
 
     /**
-     * 昵称
+     * name
      */
     private String name;
 
 
     /**
-     * 头像
+     * photo
      */
     private String avatar;
 
     /**
-     * 用户签名
+     * User signature
      */
     private String slogan;
 
     /**
-     * 0表示女，1表示男
+     * 0 = female，1= man
      */
     private Integer gender;
 
     /**
-     * 积分
+     * points
      */
     private Integer points;
 
 
     /**
-     * 邮箱
+     * emaiil
      */
     private String email;
 

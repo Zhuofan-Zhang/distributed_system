@@ -4,8 +4,8 @@
 #  cloud:
 #    nacos:
 #      config:
-#        server-addr: 39.104.131.130:8848 #Nacos配置中心地址
-#        file-extension: yaml #文件拓展格式
+#        server-addr: 39.104.131.130:8848
+#        file-extension: yaml
 #
 #  profiles:
 #    active: dev

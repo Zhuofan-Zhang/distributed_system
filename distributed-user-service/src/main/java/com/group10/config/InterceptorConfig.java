@@ -23,10 +23,10 @@ public class InterceptorConfig  implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
 
         registry.addInterceptor(new LoginInterceptor())
-                //拦截的路径
+                //interception path
                 .addPathPatterns("/api/user/*/**","/api/address/*/**")
 
-                //排查不拦截的路径
+                //Check for paths that are not blocked
                 .excludePathPatterns("/api/user/*/send_code","/api/user/*/captcha",
                         "/api/user/*/register","/api/user/*/login","/api/user/*/upload");
 

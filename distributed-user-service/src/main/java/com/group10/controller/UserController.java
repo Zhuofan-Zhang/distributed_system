@@ -40,7 +40,7 @@ public class UserController {
 
     @ApiOperation("user login")
     @PostMapping("login")
-    public JsonData login(@ApiParam("用户登录对象") @RequestBody UserLoginRequest userLoginRequest){
+    public JsonData login(@ApiParam("User login object") @RequestBody UserLoginRequest userLoginRequest){
         return userService.login(userLoginRequest);
     }
 
