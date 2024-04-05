@@ -155,25 +155,17 @@ public class UserServiceImpl implements UserService {
         String email = loginUser.getEmail();
         String cacheKey = String.format(CacheKey.CHECK_CODE_KEY, USER_LOGIN, email);
         String lockKey = "lock:logout:" + email;
-        RLock rLock = redissonClient.getLock(lockKey);
-        rLock.lock();
-        log.info("Login locked:{}", Thread.currentThread().getId());
-        try {
-            String cacheValue = redisTemplate.opsForValue().get(cacheKey);
-            if (StringUtils.isNotBlank(cacheValue)) {
-                String loggedInNumber = String.valueOf(Integer.parseInt(cacheValue) - 1);
-                if ((Integer.parseInt(cacheValue) - 1) == 0) {
-                    redisTemplate.delete(cacheKey);
-                } else {
-                    redisTemplate.opsForValue().set(cacheKey, loggedInNumber);
-                }
-                return JsonData.buildCodeAndMsg(0, "Logout Successfully");
+        String cacheValue = redisTemplate.opsForValue().get(cacheKey);
+        if (StringUtils.isNotBlank(cacheValue)) {
+            String loggedInNumber = String.valueOf(Integer.parseInt(cacheValue) - 1);
+            if ((Integer.parseInt(cacheValue) - 1) == 0) {
+                redisTemplate.delete(cacheKey);
             } else {
-                return JsonData.buildError("No Logged In User");
+                redisTemplate.opsForValue().set(cacheKey, loggedInNumber);
             }
-        } finally {
-            rLock.unlock();
-            log.info("lock released");
+            return JsonData.buildCodeAndMsg(0, "Logout Successfully");
+        } else {
+            return JsonData.buildError("No Logged In User");
         }
     }
 

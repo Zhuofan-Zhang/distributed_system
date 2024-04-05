@@ -28,7 +28,7 @@ public class InterceptorConfig  implements WebMvcConfigurer {
 
                 //Check for paths that are not blocked
                 .excludePathPatterns("/api/user/*/send_code","/api/user/*/captcha",
-                        "/api/user/*/register","/api/user/*/login","/api/user/*/upload");
+                        "/api/user/*/register","/api/user/*/login","/api/user/*/upload","/api/product/*");
 
     }
 

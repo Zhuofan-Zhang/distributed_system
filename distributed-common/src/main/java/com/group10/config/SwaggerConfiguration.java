@@ -98,10 +98,9 @@ public class SwaggerConfiguration {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("1024ECommerce")
-                .description("microservice-documents")
-                .contact(new Contact("zzf", "https://zhuofan-zhang.github.io/zhuofan-zhang/", "zhangzhuofan2019@163.com"))
-                .version("12")
+                .title("Distributed System Group Project")
+                .description("Microservice Documents")
+                .contact(new Contact("zzf", "https://zhuofan-zhang.github.io/zhuofan-zhang/", "zzhang4@tcd.ie"))
                 .build();
     }
 }
