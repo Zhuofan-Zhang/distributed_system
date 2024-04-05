@@ -20,20 +20,20 @@ public class RabbitMQConfig {
 
 
     /**
-     * 交换机
+     * switch
      */
     @Value("${mqconfig.order_event_exchange}")
     private String eventExchange;
 
 
     /**
-     * 延迟队列
+     * Delay Queue
      */
     @Value("${mqconfig.order_close_delay_queue}")
     private String orderCloseDelayQueue;
 
     /**
-     * 关单队列
+     * customs declaration queue
      */
     @Value("${mqconfig.order_close_queue}")
     private String orderCloseQueue;
@@ -41,26 +41,26 @@ public class RabbitMQConfig {
 
 
     /**
-     * 进入延迟队列的路由key
+     * Route key to enter the delay queue
      */
     @Value("${mqconfig.order_close_delay_routing_key}")
     private String orderCloseDelayRoutingKey;
 
 
     /**
-     * 进入死信队列的路由key
+     * Route key for entering the dead letter queue
      */
     @Value("${mqconfig.order_close_routing_key}")
     private String orderCloseRoutingKey;
 
     /**
-     * 过期时间
+     * expiration date
      */
     @Value("${mqconfig.ttl}")
     private Integer ttl;
 
     /**
-     * 消息转换器
+     * message converter
      * @return
      */
     @Bean
@@ -70,8 +70,8 @@ public class RabbitMQConfig {
 
 
     /**
-     * 创建交换机 Topic类型，也可以用dirct路由
-     * 一般一个微服务一个交换机
+     * Create switch Topic type, can also use dirct routing
+     * Generally one switch for one microservice
      * @return
      */
     @Bean
@@ -81,7 +81,7 @@ public class RabbitMQConfig {
 
 
     /**
-     * 延迟队列
+     * Delay Queue
      */
     @Bean
     public Queue orderCloseDelayQueue(){
@@ -96,7 +96,7 @@ public class RabbitMQConfig {
 
 
     /**
-     * 死信队列，普通队列，用于被监听
+     * Dead letter queue, general queue for being listened to
      */
     @Bean
     public Queue orderCloseQueue(){
@@ -107,7 +107,7 @@ public class RabbitMQConfig {
 
 
     /**
-     * 第一个队列，即延迟队列的绑定关系建立
+     * Bindings for the first queue, the delayed queue, are established
      * @return
      */
     @Bean
@@ -117,7 +117,7 @@ public class RabbitMQConfig {
     }
 
     /**
-     * 死信队列绑定关系建立
+     * Dead letter queue binding relationship established
      * @return
      */
     @Bean

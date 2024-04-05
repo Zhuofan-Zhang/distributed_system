@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-@Api("订单回调通知模块")
+@Api("Order Callback Notification Module")
 @Controller
 @RequestMapping("/api/callback/order/v1")
 @Slf4j
@@ -31,17 +31,17 @@ public class CallbackController {
 
 
     /**
-     * 支付回调通知 post方式
+     * Payment callback notification post method
      * @param request
      * @param response
      * @return
      */
     @PostMapping("alipay")
     public String alipayCallback(HttpServletRequest request, HttpServletResponse response){
-        //将异步通知中收到的所有参数存储到map中
+        //Store all parameters received in an asynchronous notification into map
         Map<String,String> paramsMap = convertRequestParamsToMap(request);
-        log.info("支付宝回调通知结果:{}",paramsMap);
-        //调用SDK验证签名
+        log.info("Alipay callback notification results:{}",paramsMap);
+        //Call the SDK to verify the signature
         try {
             boolean signVerified = AlipaySignature.rsaCheckV1(paramsMap, AlipayConfig.ALIPAY_PUB_KEY, AlipayConfig.CHARSET, AlipayConfig.SIGN_TYPE);
             if(signVerified){
@@ -49,14 +49,14 @@ public class CallbackController {
                 JsonData jsonData = productOrderService.handlerOrderCallbackMsg(ProductOrderPayTypeEnum.ALIPAY,paramsMap);
 
                 if(jsonData.getCode() == 0){
-                    //通知结果确认成功，不然会一直通知，八次都没返回success就认为交易失败
+                    //Notify the result to confirm success, otherwise it will keep on notifying and consider the transaction failed if it doesn't return success eight times
                     return "success";
                 }
 
             }
 
         } catch (AlipayApiException e) {
-            log.info("支付宝回调验证签名失败:异常：{}，参数:{}",e,paramsMap);
+            log.info("Paypal callback failed to verify signature:Exception:{}, Parameters:{}",e,paramsMap);
         }
 
         return "failure";
@@ -64,7 +64,7 @@ public class CallbackController {
 
 
     /**
-     * 将request中的参数转换成Map
+     * Convert the parameters in a request into a Map.
      * @param request
      * @return
      */

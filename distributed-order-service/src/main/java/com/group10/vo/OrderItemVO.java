@@ -7,37 +7,37 @@ import java.math.BigDecimal;
 public class OrderItemVO {
 
     /**
-     * 商品id
+     * Product id
      */
     @JsonProperty("product_id")
     private Long productId;
 
 
     /**
-     * 购买数量
+     * Quantity Purchased
      */
     @JsonProperty("buy_num")
     private Integer buyNum;
 
     /**
-     * 商品标题
+     * Product title
      */
     @JsonProperty("product_title")
     private String productTitle;
 
     /**
-     * 图片
+     * Picture
      */
     @JsonProperty("product_img")
     private String productImg;
 
     /**
-     * 商品单价
+     * Unit price of goods
      */
     private BigDecimal amount;
 
     /**
-     * 总价格，单价+数量
+     * Total price, unit price + quantity
      */
     @JsonProperty("total_amount")
     private BigDecimal totalAmount;
@@ -84,7 +84,7 @@ public class OrderItemVO {
     }
 
     /**
-     * 商品单价 * 购买数量
+     * Unit price of goods * Quantity purchased
      * @return
      */
     public BigDecimal getTotalAmount() {

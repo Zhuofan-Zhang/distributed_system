@@ -9,7 +9,7 @@ public class RepayOrderRequest {
 
 
     /**
-     * 订单号
+     * Order No.
      */
     @JsonProperty("out_trade_no")
     private String outTradeNo;
@@ -17,7 +17,7 @@ public class RepayOrderRequest {
 
 
     /**
-     * 支付类型- 微信-银行卡-支付宝
+     * Payment Type - WeChat - Bank Card - Alipay
      */
     @JsonProperty("pay_type")
     private String payType;
@@ -25,7 +25,7 @@ public class RepayOrderRequest {
 
 
     /**
-     * 订单号
+     * Order No.
      */
     @JsonProperty("client_type")
     private String clientType;

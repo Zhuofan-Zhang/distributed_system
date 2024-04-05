@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface CouponFeignSerivce {
 
     /**
-     * 查询用户的优惠券是否可用，防止水平权限
+     * Check the availability of a user's coupons to prevent horizontal permissions
      * @param recordId
      * @return
      */
@@ -20,7 +20,7 @@ public interface CouponFeignSerivce {
     JsonData findUserCouponRecordById(@PathVariable("record_id") long recordId);
 
     /**
-     * 锁定优惠券记录
+     * Locking Coupon Records
      * @param lockCouponRecordRequest
      * @return
      */

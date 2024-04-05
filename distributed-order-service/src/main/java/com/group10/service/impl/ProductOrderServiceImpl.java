@@ -29,8 +29,6 @@ import com.group10.util.CommonUtil;
 import com.group10.util.JsonData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,9 +40,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.group10.enums.SendCodeEnum.USER_LOGIN;
-import static com.group10.enums.SendCodeEnum.USER_PLACE_ORDER;
 
 
 @Service
@@ -84,22 +79,19 @@ public class ProductOrderServiceImpl implements ProductOrderService {
     @Autowired
     private StringRedisTemplate redisTemplate;
 
-    @Autowired
-    private RedissonClient redissonClient;
-
     /**
-     * * 防重提交
-     * * 用户微服务-确认收货地址
-     * * 商品微服务-获取最新购物项和价格
-     * * 订单验价
-     * * 优惠券微服务-获取优惠券
-     * * 验证价格
-     * * 锁定优惠券
-     * * 锁定商品库存
-     * * 创建订单对象
-     * * 创建子订单对象
-     * * 发送延迟消息-用于自动关单
-     * * 创建支付信息-对接三方支付
+     * * Anti-Resubmission
+     * * User Microservices - Confirm shipping address
+     * * Commodity Microservices - get latest shopping items and prices
+     * * Order price check
+     * * Coupon microservice-get coupons
+     * * Verify Price
+     * * * Lock coupons
+     * * Lock item inventory
+     * * Create Order Objects
+     * * Create child order objects
+     * * Send delay messages - for automatic order closure
+     * * Create payment messages - for interfacing with third-party payments
      *
      * @param orderRequest
      * @return
@@ -110,86 +102,77 @@ public class ProductOrderServiceImpl implements ProductOrderService {
 
         LoginUser loginUser = LoginInterceptor.threadLocal.get();
 
-        String email = loginUser.getEmail();
-        String lockKey = "lock:order:" + email;
-        RLock rLock = redissonClient.getLock(lockKey);
+        String orderToken = orderRequest.getToken();
+        if (StringUtils.isBlank(orderToken)) {
+            throw new BizException(BizCodeEnum.ORDER_CONFIRM_TOKEN_NOT_EXIST);
+        }
+        //Atomic operations Verify tokens, delete tokens
+        String script = "if redis.call('get',KEYS[1]) == ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end";
 
-        rLock.lock();
+        Long result = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), Arrays.asList(String.format(CacheKey.SUBMIT_ORDER_TOKEN_KEY, loginUser.getId())), orderToken);
+        if (result == 0L) {
+            throw new BizException(BizCodeEnum.ORDER_CONFIRM_TOKEN_EQUAL_FAIL);
+        }
 
-
-        log.info("Order locked:{}", Thread.currentThread().getId());
-
-        try {
-            String orderToken = orderRequest.getToken();
-            if (StringUtils.isBlank(orderToken)) {
-                throw new BizException(BizCodeEnum.ORDER_CONFIRM_TOKEN_NOT_EXIST);
-            }
-            //原子操作 校验令牌，删除令牌
-            String script = "if redis.call('get',KEYS[1]) == ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end";
-
-            Long result = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), Arrays.asList(String.format(CacheKey.SUBMIT_ORDER_TOKEN_KEY, loginUser.getId())), orderToken);
-            if (result == 0L) {
-                throw new BizException(BizCodeEnum.ORDER_CONFIRM_TOKEN_EQUAL_FAIL);
-            }
-
-            String orderOutTradeNo = CommonUtil.getStringNumRandom(32);
-            ProductOrderAddressVO addressVO = this.getUserAddress(orderRequest.getAddressId());
-
-            //获取用户加入购物车的商品
-            List<Long> productIdList = orderRequest.getProductIdList();
-
-            JsonData cartItemDate = productFeignService.confirmOrderCartItem(productIdList);
-            List<OrderItemVO> orderItemList = cartItemDate.getData(new TypeReference<>() {
-            });
-            log.info("获取的商品:{}", orderItemList);
-            if (orderItemList == null) {
-                //购物车商品不存在
-                throw new BizException(BizCodeEnum.ORDER_CONFIRM_CART_ITEM_NOT_EXIST);
-            }
-
-            //验证价格，减去商品优惠券
-            this.checkPrice(orderItemList, orderRequest);
-            if (orderRequest.getCouponRecordId() != null) {
-                this.lockCouponRecords(orderRequest, orderOutTradeNo);
-            }
-            //锁定库存
-            this.lockProductStocks(orderItemList, orderOutTradeNo);
+        String orderOutTradeNo = CommonUtil.getStringNumRandom(32);
 
 
-            //创建订单
-            ProductOrderDO productOrderDO = this.saveProductOrder(orderRequest, loginUser, orderOutTradeNo, addressVO);
+        //Get shipping address details
+        ProductOrderAddressVO addressVO = this.getUserAddress(orderRequest.getAddressId());
 
-            //创建订单项
-            this.saveProductOrderItems(orderOutTradeNo, productOrderDO.getId(), orderItemList);
+        log.info("Shipping Address Information:{}", addressVO);
 
-            //发送延迟消息，用于自动关单
-            OrderMessage orderMessage = new OrderMessage();
-            orderMessage.setOutTradeNo(orderOutTradeNo);
-            rabbitTemplate.convertAndSend(rabbitMQConfig.getEventExchange(), rabbitMQConfig.getOrderCloseDelayRoutingKey(), orderMessage);
+        //Get the items added to the shopping cart by the user
+        List<Long> productIdList = orderRequest.getProductIdList();
+
+        JsonData cartItemDate = productFeignService.confirmOrderCartItem(productIdList);
+        List<OrderItemVO> orderItemList = cartItemDate.getData(new TypeReference<>() {
+        });
+        log.info("Acquired commodities:{}", orderItemList);
+        if (orderItemList == null) {
+            //Shopping cart item does not exist
+            throw new BizException(BizCodeEnum.ORDER_CONFIRM_CART_ITEM_NOT_EXIST);
+        }
+
+        //Verify price, minus item coupons
+        this.checkPrice(orderItemList, orderRequest);
+        if (orderRequest.getCouponRecordId() != null) {
+            this.lockCouponRecords(orderRequest, orderOutTradeNo);
+        }
+        //Locked Inventory
+        this.lockProductStocks(orderItemList, orderOutTradeNo);
 
 
-            //创建支付
-            PayInfoVO payInfoVO = new PayInfoVO(orderOutTradeNo,
-                    productOrderDO.getPayAmount(), orderRequest.getPayType(),
-                    orderRequest.getClientType(), orderItemList.get(0).getProductTitle(), "", TimeConstant.ORDER_PAY_TIMEOUT_MILLS);
+        //Creating Orders
+        ProductOrderDO productOrderDO = this.saveProductOrder(orderRequest, loginUser, orderOutTradeNo, addressVO);
 
-            String payResult = payFactory.pay(payInfoVO);
-            if (StringUtils.isNotBlank(payResult)) {
-                log.info("创建支付订单成功:payInfoVO={},payResult={}", payInfoVO, payResult);
-                return JsonData.buildSuccess(payResult);
-            } else {
-                log.error("创建支付订单失败:payInfoVO={},payResult={}", payInfoVO, payResult);
-                return JsonData.buildResult(BizCodeEnum.PAY_ORDER_FAIL);
-            }
-        } finally {
-            log.info("order unlocked");
-            rLock.unlock();
+        //Creating Order Items
+        this.saveProductOrderItems(orderOutTradeNo, productOrderDO.getId(), orderItemList);
+
+        //Send delayed messages for automatic order closure
+        OrderMessage orderMessage = new OrderMessage();
+        orderMessage.setOutTradeNo(orderOutTradeNo);
+        rabbitTemplate.convertAndSend(rabbitMQConfig.getEventExchange(), rabbitMQConfig.getOrderCloseDelayRoutingKey(), orderMessage);
+
+
+        //Create Payment
+        PayInfoVO payInfoVO = new PayInfoVO(orderOutTradeNo,
+                productOrderDO.getPayAmount(), orderRequest.getPayType(),
+                orderRequest.getClientType(), orderItemList.get(0).getProductTitle(), "", TimeConstant.ORDER_PAY_TIMEOUT_MILLS);
+
+        String payResult = payFactory.pay(payInfoVO);
+        if (StringUtils.isNotBlank(payResult)) {
+            log.info("Create Payment Order Successfully:payInfoVO={},payResult={}", payInfoVO, payResult);
+            return JsonData.buildSuccess(payResult);
+        } else {
+            log.error("Failed to create payment order:payInfoVO={},payResult={}", payInfoVO, payResult);
+            return JsonData.buildResult(BizCodeEnum.PAY_ORDER_FAIL);
         }
 
     }
 
     /**
-     * 新增订单项
+     * New order item
      *
      * @param orderOutTradeNo
      * @param orderId
@@ -209,9 +192,9 @@ public class ProductOrderServiceImpl implements ProductOrderService {
                     itemDO.setOutTradeNo(orderOutTradeNo);
                     itemDO.setCreateTime(new Date());
 
-                    //单价
+                    //unit price
                     itemDO.setAmount(obj.getAmount());
-                    //总价
+                    //total amount
                     itemDO.setTotalAmount(obj.getTotalAmount());
                     itemDO.setProductOrderId(orderId);
                     return itemDO;
@@ -225,7 +208,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
     }
 
     /**
-     * 创建订单
+     * Creating Orders
      *
      * @param orderRequest
      * @param loginUser
@@ -244,10 +227,10 @@ public class ProductOrderServiceImpl implements ProductOrderService {
         productOrderDO.setDel(0);
         productOrderDO.setOrderType(ProductOrderTypeEnum.DAILY.name());
 
-        //实际支付的价格
+        //Actual price paid
         productOrderDO.setPayAmount(orderRequest.getRealPayAmount());
 
-        //总价，未使用优惠券的价格
+        //Total price, before coupons
         productOrderDO.setTotalAmount(orderRequest.getTotalAmount());
         productOrderDO.setState(ProductOrderStateEnum.NEW.name());
         productOrderDO.setPayType(ProductOrderPayTypeEnum.valueOf(orderRequest.getPayType()).name());
@@ -261,7 +244,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
     }
 
     /**
-     * 锁定商品库存
+     * Locked merchandise inventory
      *
      * @param orderItemList
      * @param orderOutTradeNo
@@ -283,13 +266,13 @@ public class ProductOrderServiceImpl implements ProductOrderService {
 
         JsonData jsonData = productFeignService.lockProductStock(lockProductRequest);
         if (jsonData.getCode() != 0) {
-            log.error("锁定商品库存失败：{}", lockProductRequest);
+            log.error("Failed to lock item inventory：{}", lockProductRequest);
             throw new BizException(BizCodeEnum.ORDER_CONFIRM_LOCK_PRODUCT_FAIL);
         }
     }
 
     /**
-     * 锁定优惠券
+     * Locked Coupons
      *
      * @param orderRequest
      * @param orderOutTradeNo
@@ -303,7 +286,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
             lockCouponRecordRequest.setOrderOutTradeNo(orderOutTradeNo);
             lockCouponRecordRequest.setLockCouponRecordIds(lockCouponRecordIds);
 
-            //发起锁定优惠券请求
+            //Initiate a locked coupon request
             JsonData jsonData = couponFeignSerivce.lockCouponRecords(lockCouponRecordRequest);
             if (jsonData.getCode() != 0) {
                 throw new BizException(BizCodeEnum.COUPON_RECORD_LOCK_FAIL);
@@ -313,16 +296,16 @@ public class ProductOrderServiceImpl implements ProductOrderService {
     }
 
     /**
-     * 验证价格
-     * 1）统计全部商品的价格
-     * 2) 获取优惠券(判断是否满足优惠券的条件)，总价再减去优惠券的价格 就是 最终的价格
-     *
+     * Validating prices
+     * 1) Count the price of all products
+     * 2) Get the coupon (determine if it meets the conditions of the coupon), the total price minus the price of the coupon is the final price
+     * @param orderItem
      * @param orderItemList
      * @param orderRequest
      */
     private void checkPrice(List<OrderItemVO> orderItemList, ConfirmOrderRequest orderRequest) {
 
-        //统计商品总价格
+        //Statistics on total commodity prices
         BigDecimal realPayAmount = new BigDecimal("0");
         if (orderItemList != null) {
             for (OrderItemVO orderItemVO : orderItemList) {
@@ -331,13 +314,13 @@ public class ProductOrderServiceImpl implements ProductOrderService {
             }
         }
 
-        //获取优惠券，判断是否可以使用
+        //Get the coupon and determine if it can be used
         CouponRecordVO couponRecordVO = getCartCouponRecord(orderRequest.getCouponRecordId());
 
-        //计算购物车价格，是否满足优惠券满减条件
+        //Calculate the shopping cart price and whether it meets the conditions of the coupon full reduction
         if (couponRecordVO != null) {
 
-            //计算是否满足满减
+            //Calculate whether the full discount is met
             if (realPayAmount.compareTo(couponRecordVO.getConditionPrice()) < 0) {
                 throw new BizException(BizCodeEnum.ORDER_CONFIRM_COUPON_FAIL);
             }
@@ -351,13 +334,13 @@ public class ProductOrderServiceImpl implements ProductOrderService {
         }
 
         if (realPayAmount.compareTo(orderRequest.getRealPayAmount()) != 0) {
-            log.error("订单验价失败：{}", orderRequest);
+            log.error("Order Price Check Failure：{}", orderRequest);
             throw new BizException(BizCodeEnum.ORDER_CONFIRM_PRICE_FAIL);
         }
     }
 
     /**
-     * 获取优惠券
+     * Get Coupon
      *
      * @param couponRecordId
      * @return
@@ -380,7 +363,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
         CouponRecordVO couponRecordVO = mapper.convertValue(couponData.getData(), CouponRecordVO.class);
 
         if (!couponAvailable(couponRecordVO)) {
-            log.error("优惠券使用失败");
+            log.error("Failed to use coupon");
             throw new BizException(BizCodeEnum.COUPON_UNAVAILABLE);
         }
         return couponRecordVO;
@@ -388,7 +371,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
     }
 
     /**
-     * 判断优惠券是否可用
+     * Determine if a coupon is available
      *
      * @param couponRecordVO
      * @return
@@ -407,7 +390,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
     }
 
     /**
-     * 获取收货地址详情
+     * Get shipping address details
      *
      * @param addressId
      * @return
@@ -417,7 +400,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
         JsonData addressData = userFeignService.detail(addressId);
 
         if (addressData.getCode() != 0) {
-            log.error("获取收获地址失败,msg:{}", addressData);
+            log.error("Failed to get shipping address details,msg:{}", addressData);
             throw new BizException(BizCodeEnum.ADDRESS_NO_EXITS);
         }
         ObjectMapper mapper = new ObjectMapper();
@@ -427,7 +410,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
 
 
     /**
-     * 查询订单状态
+     * Check Order Status
      *
      * @param outTradeNo
      * @return
@@ -446,7 +429,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
 
 
     /**
-     * 定时关单
+     * time-based customs clearance
      *
      * @param orderMessage
      * @return
@@ -457,31 +440,31 @@ public class ProductOrderServiceImpl implements ProductOrderService {
         ProductOrderDO productOrderDO = productOrderMapper.selectOne(new QueryWrapper<ProductOrderDO>().eq("out_trade_no", orderMessage.getOutTradeNo()));
 
         if (productOrderDO == null) {
-            //订单不存在
-            log.warn("直接确认消息，订单不存在:{}", orderMessage);
+            //Order does not exist
+            log.warn("Direct confirmation message, order does not exist:{}", orderMessage);
             return true;
         }
 
         if (productOrderDO.getState().equalsIgnoreCase(ProductOrderStateEnum.PAY.name())) {
-            //已经支付
-            log.info("直接确认消息,订单已经支付:{}", orderMessage);
+            //Paid
+            log.info("Direct confirmation message, order paid:{}", orderMessage);
             return true;
         }
 
-        //向第三方支付查询订单是否真的未支付
+        //Check with the third party payment to see if the order is really unpaid
         PayInfoVO payInfoVO = new PayInfoVO();
         payInfoVO.setPayType(productOrderDO.getPayType());
         payInfoVO.setOutTradeNo(orderMessage.getOutTradeNo());
         String payResult = "success";
 
-        //结果为空，则未支付成功，本地取消订单
+        //If the result is null, the payment is not successful and the order is canceled locally
         if (StringUtils.isBlank(payResult)) {
             productOrderMapper.updateOrderPayState(productOrderDO.getOutTradeNo(), ProductOrderStateEnum.CANCEL.name(), ProductOrderStateEnum.NEW.name());
-            log.info("结果为空，则未支付成功，本地取消订单:{}", orderMessage);
+            log.info("If the result is null, the payment is not successful and the order is canceled locally:{}", orderMessage);
             return true;
         } else {
-            //支付成功，主动的把订单状态改成UI就支付，造成该原因的情况可能是支付通道回调有问题
-            log.warn("支付成功，主动的把订单状态改成UI就支付，造成该原因的情况可能是支付通道回调有问题:{}", orderMessage);
+            //Payment is successful, the initiative to change the order status to UI on the payment, the cause of the situation may be a problem with the payment channel callbacks
+            log.warn("Payment is successful, the initiative to change the order status to UI on the payment, the cause of the situation may be a problem with the payment channel callbacks:{}", orderMessage);
             productOrderMapper.updateOrderPayState(productOrderDO.getOutTradeNo(), ProductOrderStateEnum.PAY.name(), ProductOrderStateEnum.NEW.name());
             return true;
         }
@@ -490,7 +473,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
     }
 
     /***
-     * 支付通知结果更新订单状态
+     * Payment notification results update order status
      * @param payType
      * @param paramsMap
      * @return
@@ -500,14 +483,14 @@ public class ProductOrderServiceImpl implements ProductOrderService {
 
 
         if (payType.name().equalsIgnoreCase(ProductOrderPayTypeEnum.ALIPAY.name())) {
-            //支付宝支付
-            //获取商户订单号
+            //Alipay Payment
+            //get merchant order number
             String outTradeNo = paramsMap.get("out_trade_no");
-            //交易的状态
+            //status of a transaction
             String tradeStatus = paramsMap.get("trade_status");
 
             if ("TRADE_SUCCESS".equalsIgnoreCase(tradeStatus) || "TRADE_FINISHED".equalsIgnoreCase(tradeStatus)) {
-                //更新订单状态
+                //Update Order Status
                 productOrderMapper.updateOrderPayState(outTradeNo, ProductOrderStateEnum.PAY.name(), ProductOrderStateEnum.NEW.name());
                 return JsonData.buildSuccess();
             }
@@ -519,7 +502,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
     }
 
     /**
-     * 分页查询我的订单
+     * Paging through my orders
      *
      * @param page
      * @param size
@@ -540,7 +523,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
             orderDOPage = productOrderMapper.selectPage(pageInfo, new QueryWrapper<ProductOrderDO>().eq("user_id", loginUser.getId()).eq("state", state));
         }
 
-        //获取订单列表
+        //Get Order List
         List<ProductOrderDO> productOrderDOList = orderDOPage.getRecords();
 
         List<ProductOrderVO> productOrderVOList = productOrderDOList.stream().map(orderDO -> {
@@ -576,33 +559,33 @@ public class ProductOrderServiceImpl implements ProductOrderService {
 
         ProductOrderDO productOrderDO = productOrderMapper.selectOne(new QueryWrapper<ProductOrderDO>().eq("out_trade_no", repayOrderRequest.getOutTradeNo()).eq("user_id", loginUser.getId()));
 
-        log.info("订单状态:{}", productOrderDO);
+        log.info("Order Status:{}", productOrderDO);
 
         if (productOrderDO == null) {
             return JsonData.buildResult(BizCodeEnum.PAY_ORDER_NOT_EXIST);
         }
 
-        //订单状态不对，不是NEW状态
+        //The order status is incorrect, not NEW.
         if (!productOrderDO.getState().equalsIgnoreCase(ProductOrderStateEnum.NEW.name())) {
             return JsonData.buildResult(BizCodeEnum.PAY_ORDER_STATE_ERROR);
         } else {
-            //订单创建到现在的存活时间
+            //Survival time from order creation to present
             long orderLiveTime = CommonUtil.getCurrentTimestamp() - productOrderDO.getCreateTime().getTime();
-            //创建订单是临界点，所以再增加1分钟多几秒，假如29分，则也不能支付了
+            //Creating an order is the tipping point, so add another minute and a few more seconds, and if it's 29 minutes, you won't be able to pay either!
             orderLiveTime = orderLiveTime + 70 * 1000;
 
 
-            //大于订单超时时间，则失效
+            //Greater than the order timeout time, it expires
             if (orderLiveTime > TimeConstant.ORDER_PAY_TIMEOUT_MILLS) {
                 return JsonData.buildResult(BizCodeEnum.PAY_ORDER_PAY_TIMEOUT);
             } else {
 
-                //记得更新DB订单支付参数 payType，还可以增加订单支付信息日志  TODO
+                //Remember to update the DB order payment parameter payType and also add a log of order payment information TODO
 
 
-                //总时间-存活的时间 = 剩下的有效时间
+                //Total time - time survived = effective time remaining
                 long timeout = TimeConstant.ORDER_PAY_TIMEOUT_MILLS - orderLiveTime;
-                //创建支付
+                //Create Payment
                 PayInfoVO payInfoVO = new PayInfoVO(productOrderDO.getOutTradeNo(),
                         productOrderDO.getPayAmount(), repayOrderRequest.getPayType(),
                         repayOrderRequest.getClientType(), productOrderDO.getOutTradeNo(), "", timeout);
@@ -610,10 +593,10 @@ public class ProductOrderServiceImpl implements ProductOrderService {
                 log.info("payInfoVO={}", payInfoVO);
                 String payResult = payFactory.pay(payInfoVO);
                 if (StringUtils.isNotBlank(payResult)) {
-                    log.info("创建二次支付订单成功:payInfoVO={},payResult={}", payInfoVO, payResult);
+                    log.info("Create secondary payment order successfully:payInfoVO={},payResult={}", payInfoVO, payResult);
                     return JsonData.buildSuccess(payResult);
                 } else {
-                    log.error("创建二次支付订单失败:payInfoVO={},payResult={}", payInfoVO, payResult);
+                    log.error("Failed to create secondary payment order:payInfoVO={},payResult={}", payInfoVO, payResult);
                     return JsonData.buildResult(BizCodeEnum.PAY_ORDER_FAIL);
                 }
 

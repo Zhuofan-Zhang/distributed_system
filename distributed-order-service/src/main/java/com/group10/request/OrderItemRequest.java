@@ -6,16 +6,16 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 
-@ApiModel(value = "商品子项")
+@ApiModel(value = "Commodity sub-items")
 @Data
 public class OrderItemRequest {
 
 
-    @ApiModelProperty(value = "商品id",example = "1")
+    @ApiModelProperty(value = "Product id",example = "1")
     @JsonProperty("product_id")
     private long productId;
 
-    @ApiModelProperty(value = "购买数量",example = "2")
+    @ApiModelProperty(value = "Quantity Purchased",example = "2")
     @JsonProperty("buy_num")
     private int buyNum;
 }

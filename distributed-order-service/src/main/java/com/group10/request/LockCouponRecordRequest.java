@@ -6,22 +6,22 @@ import lombok.Data;
 
 import java.util.List;
 
-@ApiModel(value = "优惠券锁定对象",description = "优惠券锁定对象")
+@ApiModel(value = "coupon_targeting",description = "Coupon Targeting")
 @Data
 public class LockCouponRecordRequest {
 
 
     /**
-     * 优惠券记录id列表
+     * Coupon record id list
      */
-    @ApiModelProperty(value = "优惠券记录id列表",example = "[1,2,3]")
+    @ApiModelProperty(value = "coupon_record_id_list",example = "[1,2,3]")
     private List<Long> lockCouponRecordIds;
 
 
     /**
-     * 订单号
+     * Order No.
      */
-    @ApiModelProperty(value = "订单号",example = "3234fw234rfd232")
+    @ApiModelProperty(value = "order_no",example = "3234fw234rfd232")
     private String orderOutTradeNo;
 
 }

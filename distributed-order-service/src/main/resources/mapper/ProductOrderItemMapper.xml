@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.group10.mapper.ProductOrderItemMapper">
 
-    <!-- 通用查询映射结果 -->
+    <!-- Generic Query Mapping Results -->
     <resultMap id="BaseResultMap" type="com.group10.model.ProductOrderItemDO">
         <id column="id" property="id" />
         <result column="product_order_id" property="productOrderId" />
@@ -16,17 +16,17 @@
         <result column="amount" property="amount" />
     </resultMap>
 
-    <!-- 通用查询结果列 -->
+    <!-- Generic query result column -->
     <sql id="Base_Column_List">
         id, product_order_id, out_trade_no, product_id, product_name, product_img, buy_num, create_time, total_amount, amount
     </sql>
 
-    <!-- 通用查询结果列 -->
+    <!-- Generic query result column -->
     <sql id="Base_Column_List_No_Id">
         product_order_id, out_trade_no, product_id, product_name, product_img, buy_num, create_time, total_amount, amount
     </sql>
 
-    <!--批量插入-->
+    <!-- Batch insertion -->
     <insert id="insertBatch">
 
         insert into product_order_item

@@ -15,73 +15,73 @@ public class ProductOrderVO {
     private Long id;
 
     /**
-     * 订单唯一标识
+     * Order Unique Identification
      */
     private String outTradeNo;
 
     /**
-     * NEW 未支付订单,PAY已经支付订单,CANCEL超时取消订单
+     * NEW Unpaid orders, PAY paid orders, CANCEL timeout canceled orders
      */
     private String state;
 
     /**
-     * 订单生成时间
+     * Order Generation Time
      */
     private Date createTime;
 
     /**
-     * 订单总金额
+     * Total Order Amount
      */
     private BigDecimal totalAmount;
 
     /**
-     * 订单实际支付价格
+     * Actual price paid for the order
      */
     private BigDecimal payAmount;
 
     /**
-     * 支付类型，微信-银行-支付宝
+     * Payment type, WeChat - Bank - Alipay
      */
     private String payType;
 
     /**
-     * 昵称
+     * nicknames
      */
     private String nickname;
 
     /**
-     * 头像
+     * avatar
      */
     private String headImg;
 
     /**
-     * 用户id
+     * User id
      */
     private Long userId;
 
     /**
-     * 0表示未删除，1表示已经删除
+     * 0 means not deleted, 1 means deleted
      */
     private Integer del;
 
     /**
-     * 更新时间
+     * Update time
      */
     private Date updateTime;
 
     /**
-     * 订单类型 DAILY普通单，PROMOTION促销订单
+     * Order Type DAILY General Order, PROMOTION Promotion Order
      */
     private String orderType;
 
     /**
-     * 收货地址 json存储
+     * Shipping address json storage
      */
     private String receiverAddress;
 
 
     /**
-     * 订单项
+     * order item
      */
     private List<OrderItemVO> orderItemList;
 

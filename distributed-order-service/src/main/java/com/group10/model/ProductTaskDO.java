@@ -20,22 +20,22 @@ public class ProductTaskDO implements Serializable {
     private Long id;
 
     /**
-     * 商品id
+     *  Product id
      */
     private Long productId;
 
     /**
-     * 购买数量
+     * Quantity Purchased
      */
     private Integer buyNum;
 
     /**
-     * 商品标题
+     * Product name
      */
     private String productName;
 
     /**
-     * 锁定状态锁定LOCK  完成FINISH-取消CANCEL
+     * Lock Status Lock LOCK Finish FINISH-Cancel CANCEL
      */
     private String lockState;
 

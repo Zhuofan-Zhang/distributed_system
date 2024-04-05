@@ -7,15 +7,15 @@ import lombok.Data;
 
 import java.util.List;
 
-@ApiModel(value = "商品锁定对象",description = "商品锁定对象协议")
+@ApiModel(value = "Commodity Locked Objects",description = "Commodity Locked Object Agreement")
 @Data
 public class LockProductRequest {
 
-    @ApiModelProperty(value = "订单id",example = "12312312312")
+    @ApiModelProperty(value = "order_id",example = "12312312312")
     @JsonProperty("order_out_trade_no")
     private String orderOutTradeNo;
 
-    @ApiModelProperty(value = "订单项")
+    @ApiModelProperty(value = "order_item")
     @JsonProperty("order_item_list")
     private List<OrderItemRequest> orderItemList;
 }

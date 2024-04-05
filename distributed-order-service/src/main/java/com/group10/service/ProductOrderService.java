@@ -11,7 +11,7 @@ import java.util.Map;
 
 /**
  * <p>
- * 服务类
+ *  Service class
  * </p>
  *
  * @author zzf
@@ -19,7 +19,7 @@ import java.util.Map;
  */
 public interface ProductOrderService {
     /**
-     * 创建订单
+     * Creating Orders
      *
      * @param orderRequest
      * @return
@@ -27,7 +27,7 @@ public interface ProductOrderService {
     JsonData confirmOrder(ConfirmOrderRequest orderRequest);
 
     /**
-     * 查询订单状态
+     * Check Order Status
      *
      * @param outTradeNo
      * @return
@@ -35,7 +35,7 @@ public interface ProductOrderService {
     String queryProductOrderState(String outTradeNo);
 
     /**
-     * 队列监听，定时关单
+     * Queue listening, timed order closure
      *
      * @param orderMessage
      * @return
@@ -43,7 +43,7 @@ public interface ProductOrderService {
     boolean closeProductOrder(OrderMessage orderMessage);
 
     /**
-     * 支付结果回调通知
+     * Payment Result Callback Notification
      *
      * @param alipay
      * @param paramsMap
@@ -53,7 +53,7 @@ public interface ProductOrderService {
 
 
     /**
-     * 分页查询我的订单列表
+     * Paging through my order list
      *
      * @param page
      * @param size
@@ -64,7 +64,7 @@ public interface ProductOrderService {
 
 
     /**
-     * 订单二次支付
+     * Secondary payment for orders
      *
      * @param repayOrderRequest
      * @return

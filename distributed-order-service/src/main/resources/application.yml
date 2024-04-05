@@ -5,38 +5,38 @@ spring:
   application:
     name: distributed-order-service
   cloud:
-    #注册中心地址
+    #Registration Center Address
     nacos:
       discovery:
         server-addr: 8.130.44.244:8848
 
-  #消息队列
+  #message queue
   rabbitmq:
     host: 8.130.44.244
     port: 5672
     virtual-host: /
     password: password
     username: admin
-    #开启手动确认消息
+    #Enable manual confirmation messages
     listener:
       simple:
         acknowledge-mode: manual
 
-#数据库配置
+#Database Configuration
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://8.130.44.244:3306/cafe_order?allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: ds
     password: distributedsystem
 
-#redis 配置
+#redis Configuration
   redis:
     host: 8.130.44.244
     port: 8000
     password: 123456
 
 
-#配置plus打印sql日志
+#Configure plus to print sql logs
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
@@ -46,10 +46,10 @@ feign:
   client:
     config:
       default:
-        connectTimeout: 10000 # 连接超时时间（毫秒）
-        readTimeout: 30000 # 读取超时时间（毫秒）
+        connectTimeout: 10000 # Connection timeout in milliseconds
+        readTimeout: 30000 # Read timeout in milliseconds
 
-#设置日志级别,ERROR/WARN/INFO/DEBUG,默认是INFO以上才显示
+#Set the log level, ERROR/WARN/INFO/DEBUG, the default is INFO and above to display.
 logging:
   level:
     root: INFO
@@ -57,32 +57,31 @@ logging:
 
 
 
-#自定义消息队列配置，发送锁定库存消息-》延迟exchange-》lock.queue-》死信exchange-》release.queue
+#Customize message queue configuration, send lock inventory message - "delay exchange - "lock.queue - "dead letter exchange - "release.queue
 mqconfig:
-  #延迟队列，不能被监听消费
+  #delay queue, can't be listened to for consumption
   order_close_delay_queue: order.close.delay.queue
 
-  #延迟队列的消息过期后转发的队列
+  #Delay queue for forwarding messages after they expire
   order_close_queue: order.close.queue
 
-  #交换机
+  #exchange
   order_event_exchange: order.event.exchange
 
-  #进入延迟队列的路由key
+  #Route key to the delayed queue
   order_close_delay_routing_key: order.close.delay.routing.key
 
-  #消息过期，进入释放队列的key,进入死信队列的key
+  #key for message expiration, release queue, dead message queue.
   order_close_routing_key: order.close.routing.key
 
-  #消息过期时间,毫秒，临时改为5分钟定时关单
+  #Message expiration time, milliseconds, temporarily changed to 5-minute timed order close
   ttl: 60000
 
 
-
-#支付宝配置
+#Alipay Configuration
 alipay:
-  #支付成功的跳转页面
+  #Payment success return page
   success_return_url: https://google.com
 
-  #支付宝通知回调接口, 蚂蚁金服开放平台应用后台也需要配置对应的地址
+  #Alipay notification callback interface, Ant Gold Open Platform application backend also needs to be configured with the corresponding address
   callback_url: https://google.com

@@ -24,8 +24,8 @@ public class ProductOrderMQListener {
 
     /**
      *
-     * 消费重复消息，幂等性保证
-     * 并发情况下如何保证安全
+     * Consumption of duplicate messages, idempotency guarantees
+     * * How to guarantee security in case of concurrency
      *
      * @param orderMessage
      * @param message
@@ -34,7 +34,7 @@ public class ProductOrderMQListener {
      */
     @RabbitHandler
     public void closeProductOrder(OrderMessage orderMessage, Message message, Channel channel) throws IOException {
-        log.info("监听到消息：closeProductOrder:{}",orderMessage);
+        log.info("Listening to messages：closeProductOrder:{}",orderMessage);
         long msgTag = message.getMessageProperties().getDeliveryTag();
 
 
@@ -48,7 +48,7 @@ public class ProductOrderMQListener {
             }
 
         }catch (IOException e){
-            log.error("定时关单失败:",orderMessage);
+            log.error("Timed order closure failure:",orderMessage);
             channel.basicReject(msgTag,true);
         }
 

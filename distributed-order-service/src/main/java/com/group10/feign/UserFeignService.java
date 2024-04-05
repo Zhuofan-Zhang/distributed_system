@@ -10,7 +10,7 @@ public interface UserFeignService {
 
 
     /**
-     * 查询用户地址，接口本身有防止水平权限
+     * Query the user's address, the interface itself has level prevention privileges
      * @param addressId
      * @return
      */

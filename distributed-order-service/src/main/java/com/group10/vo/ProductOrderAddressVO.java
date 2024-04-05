@@ -13,44 +13,44 @@ public class ProductOrderAddressVO {
     private Long id;
 
     /**
-     * 用户id
+     * User id
      */
     private Long userId;
 
     /**
-     * 是否默认收货地址：0->否；1->是
+     * Default shipping address: 0->No; 1->Yes
      */
     @JsonProperty("default_status")
     private Integer defaultStatus;
 
     /**
-     * 收发货人姓名
+     * Name of consignee or consignor
      */
     @JsonProperty("receiver_name")
     private String receiverName;
 
     /**
-     * 收货人电话
+     * Consignee's phone number
      */
     private String phone;
 
     /**
-     * 省/直辖市
+     * Province/Municipality
      */
     private String state;
 
     /**
-     * 市
+     * City
      */
     private String city;
 
     /**
-     * 区
+     * District
      */
     private String district;
 
     /**
-     * 详细地址
+     * Full address
      */
 
     @JsonProperty("detailed_address")

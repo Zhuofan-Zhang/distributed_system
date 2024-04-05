@@ -28,41 +28,41 @@ public class ProductOrderItemDO implements Serializable {
     private Long id;
 
     /**
-     * 订单号
+     * Order No.
      */
     private Long productOrderId;
 
     private String outTradeNo;
 
     /**
-     * 产品id
+     * Product id
      */
     private Long productId;
 
     /**
-     * 商品名称
+     * Product name
      */
     private String productName;
 
     /**
-     * 商品图片
+     * Product Picture
      */
     private String productImg;
 
     /**
-     * 购买数量
+     * Quantity Purchased
      */
     private Integer buyNum;
 
     private Date createTime;
 
     /**
-     * 购物项商品总价格
+     * Total price of goods purchased
      */
     private BigDecimal totalAmount;
 
     /**
-     * 购物项商品单价
+     * Unit price of purchased items
      */
     private BigDecimal amount;
 

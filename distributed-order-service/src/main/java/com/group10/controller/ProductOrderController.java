@@ -64,19 +64,19 @@ public class ProductOrderController {
 
 
     /**
-     * 分页查询我的订单列表
+     * Paging through my order list
      *
      * @param page
      * @param size
      * @param state
      * @return
      */
-    @ApiOperation("分页查询我的订单列表")
+    @ApiOperation("Paging through my order list")
     @GetMapping("page")
     public JsonData pagePOrderList(
-            @ApiParam(value = "当前页") @RequestParam(value = "page", defaultValue = "1") int page,
-            @ApiParam(value = "每页显示多少条") @RequestParam(value = "size", defaultValue = "10") int size,
-            @ApiParam(value = "订单状态") @RequestParam(value = "state", required = false) String state
+            @ApiParam(value = "current_page") @RequestParam(value = "page", defaultValue = "1") int page,
+            @ApiParam(value = "How_many_entries_per_page") @RequestParam(value = "size", defaultValue = "10") int size,
+            @ApiParam(value = "order_state") @RequestParam(value = "state", required = false) String state
     ) {
 
         Map<String, Object> pageResult = orderService.page(page, size, state);
@@ -88,16 +88,16 @@ public class ProductOrderController {
 
 
     /**
-     * 查询订单状态
+     * Check Order Status
      * <p>
-     * 此接口没有登录拦截，可以增加一个秘钥进行rpc通信
+     * This interface has no login blocking, you can add a secret key for rpc communication
      *
      * @param outTradeNo
      * @return
      */
-    @ApiOperation("查询订单状态")
+    @ApiOperation("Check Order Status")
     @GetMapping("query_state")
-    public JsonData queryProductOrderState(@ApiParam("订单号") @RequestParam("out_trade_no") String outTradeNo) {
+    public JsonData queryProductOrderState(@ApiParam("order_no") @RequestParam("out_trade_no") String outTradeNo) {
 
         String state = orderService.queryProductOrderState(outTradeNo);
 
@@ -113,10 +113,10 @@ public class ProductOrderController {
         JsonData jsonData = orderService.confirmOrder(orderRequest);
 
         if (jsonData.getCode() == 0) {
-            log.info("创建支付宝订单成功:{}", orderRequest.toString());
+            log.info("Create Alipay Order Successfully:{}", orderRequest.toString());
             writeData(response, jsonData);
         } else {
-            log.error("创建订单失败{}", jsonData.toString());
+            log.error("Failed to create order:{}", jsonData.toString());
             CommonUtil.sendJsonMessage(response, jsonData);
 
         }
@@ -131,37 +131,37 @@ public class ProductOrderController {
             response.getWriter().flush();
             response.getWriter().close();
         } catch (IOException e) {
-            log.error("写出Html异常：{}", e);
+            log.error("Write the Html exception:{}", e);
         }
 
     }
 
 
     /**
-     * 测试支付方法
+     * Testing payment methods
      */
     @GetMapping("test_pay")
     public void testAlipay(HttpServletResponse response) throws AlipayApiException, IOException {
 
         HashMap<String, String> content = new HashMap<>();
-        //商户订单号,64个字符以内、可包含字母、数字、下划线；需保证在商户端不重复
+        //Merchant order number, 64 characters or less, can contain letters, numbers, underscores; need to ensure that in the merchant side is not repeated
         String no = UUID.randomUUID().toString();
 
-        log.info("订单号:{}", no);
+        log.info("Order No:{}", no);
         content.put("out_trade_no", no);
 
         content.put("product_code", "FAST_INSTANT_TRADE_PAY");
 
-        //订单总金额，单位为元，精确到小数点后两位
+        //Total amount of the order in dollars, accurate to two decimal places
         content.put("total_amount", String.valueOf("111.99"));
 
-        //商品标题/交易标题/订单标题/订单关键字等。 注意：不可使用特殊字符，如 /，=，&amp; 等。
-        content.put("subject", "杯子");
+        //Product Title/Transaction Title/Order Title/Order Keyword, etc. Note: Special characters such as /, =, &amp; etc. are not allowed.
+        content.put("subject", "cup");
 
-        //商品描述，可空
-        content.put("body", "好的杯子");
+        //Description of goods, can be empty
+        content.put("body", "good cup");
 
-        // 该笔订单允许的最晚付款时间，逾期将关闭交易。取值范围：1m～15d。m-分钟，h-小时，d-天，1c-当天（1c-当天的情况下，无论交易何时创建，都在0点关闭）。 该参数数值不接受小数点， 如 1.5h，可转换为 90m。
+        // The latest payment time allowed for this order, after which the transaction will be closed. Range of values: 1m to 15d. m-minutes, h-hours, d-days, 1c-day (in case of 1c-day, the transaction is closed at 0:00 regardless of when it was created). The value of this parameter does not accept decimal points, e.g. 1.5h, which can be converted to 90m.
         content.put("timeout_express", "5m");
 
 
@@ -173,7 +173,7 @@ public class ProductOrderController {
         AlipayTradeWapPayResponse alipayResponse = AlipayConfig.getInstance().pageExecute(request);
 
         if (alipayResponse.isSuccess()) {
-            System.out.println("调用成功");
+            System.out.println("The call succeeded.");
 
             String form = alipayResponse.getBody();
 
@@ -183,7 +183,7 @@ public class ProductOrderController {
             response.getWriter().close();
 
         } else {
-            System.out.println("调用失败");
+            System.out.println("Failure of call");
         }
     }
 }

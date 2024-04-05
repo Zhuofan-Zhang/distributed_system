@@ -7,14 +7,14 @@ public interface PayStrategy {
 
 
     /**
-     * 下单
+     * Order
      * @return
      */
     String unifiedorder(PayInfoVO payInfoVO);
 
 
     /**
-     *  退款
+     *  refund
      * @param payInfoVO
      * @return
      */
@@ -22,7 +22,7 @@ public interface PayStrategy {
 
 
     /**
-     * 查询支付是否成功
+     * Check if the payment is successful
      * @param payInfoVO
      * @return
      */

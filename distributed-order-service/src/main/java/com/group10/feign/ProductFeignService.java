@@ -14,7 +14,7 @@ public interface ProductFeignService {
 
 
     /**
-     * 获取购物车的最新商品价格（也会清空对应的购物车商品）
+     * Get the price of the latest item in the shopping cart (also empties the corresponding cart item)
      * @param productIdList
      * @return
      */
@@ -23,7 +23,7 @@ public interface ProductFeignService {
 
 
     /**
-     * 锁定商品购物项库存
+     * Locked merchandise shopping item inventory
      * @param lockProductRequest
      * @return
      */

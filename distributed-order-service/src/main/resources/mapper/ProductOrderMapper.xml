@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.group10.mapper.ProductOrderMapper">
 
-    <!-- 通用查询映射结果 -->
+    <!-- Generic Query Mapping Results -->
     <resultMap id="BaseResultMap" type="com.group10.model.ProductOrderDO">
         <id column="id" property="id" />
         <result column="out_trade_no" property="outTradeNo" />

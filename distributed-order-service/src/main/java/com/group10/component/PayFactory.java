@@ -29,13 +29,13 @@ public class PayFactory {
         String payType = payInfoVO.getPayType();
 
         if(ProductOrderPayTypeEnum.ALIPAY.name().equalsIgnoreCase(payType)){
-            //支付宝支付
+            //Alipay payment
             PayStrategyContext payStrategyContext = new PayStrategyContext(alipayStrategy);
 
             return payStrategyContext.executeUnifiedorder(payInfoVO);
 
         } else if(ProductOrderPayTypeEnum.WECHAT.name().equalsIgnoreCase(payType)){
-            //微信支付 暂未实现
+            //WeChat Payment Not yet realized
             PayStrategyContext payStrategyContext = new PayStrategyContext(wechatPayStrategy);
 
             return payStrategyContext.executeUnifiedorder(payInfoVO);
@@ -47,9 +47,9 @@ public class PayFactory {
 
 
     /**
-     * 查询订单支付状态
+     * Query order payment status
      *
-     * 支付成功返回非空，其他返回空
+     * Payment success returns non-null, others return null
      *
      * @param payInfoVO
      * @return
@@ -58,13 +58,13 @@ public class PayFactory {
         String payType = payInfoVO.getPayType();
 
         if(ProductOrderPayTypeEnum.ALIPAY.name().equalsIgnoreCase(payType)){
-            //支付宝支付
+            //Alipay payment
             PayStrategyContext payStrategyContext = new PayStrategyContext(alipayStrategy);
 
             return payStrategyContext.executeQueryPaySuccess(payInfoVO);
 
         } else if(ProductOrderPayTypeEnum.WECHAT.name().equalsIgnoreCase(payType)){
-            //微信支付 暂未实现
+            //WeChat Payment Not yet realized
             PayStrategyContext payStrategyContext = new PayStrategyContext(wechatPayStrategy);
 
             return payStrategyContext.executeQueryPaySuccess(payInfoVO);

@@ -13,7 +13,7 @@ public class PayStrategyContext {
 
 
     /**
-     * 根据支付策略，调用不同的支付
+     * Call different payments according to the payment strategy
      * @param payInfoVO
      * @return
      */
@@ -23,7 +23,7 @@ public class PayStrategyContext {
 
 
     /**
-     * 根据支付的策略，调用不同的查询订单支持状态
+     * Invoke different query order support statuses based on the payment's strategy
      * @param payInfoVO
      * @return
      */
