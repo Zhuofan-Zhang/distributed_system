@@ -48,7 +48,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring.boot.version}</version>
 
-                <!--需要加这个，不然打包镜像找不到启动文件-->
+                <!--This needs to be added, otherwise, the image packaging process will not find the startup file-->
                 <executions>
                     <execution>
                         <goals>

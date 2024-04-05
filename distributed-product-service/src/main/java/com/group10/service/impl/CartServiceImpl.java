@@ -43,7 +43,6 @@ public class CartServiceImpl implements CartService {
         long productId = cartItemRequest.getProductId();
         int buyNum = cartItemRequest.getBuyNum();
 
-        //获取购物车
         BoundHashOperations<String,Object,Object> myCart =  getMyCartOps();
 
         Object cacheObj = myCart.get(productId);
@@ -54,7 +53,6 @@ public class CartServiceImpl implements CartService {
         }
 
         if(StringUtils.isBlank(result)){
-            //不存在则新建一个商品
             CartItemVO cartItemVO = new CartItemVO();
 
             ProductVO productVO = productService.findDetailById(productId);
@@ -68,7 +66,6 @@ public class CartServiceImpl implements CartService {
             myCart.put(productId,JSON.toJSONString(cartItemVO));
 
         }else {
-            //存在商品，修改数量
             CartItemVO cartItem = JSON.parseObject(result,CartItemVO.class);
             cartItem.setBuyNum(cartItem.getBuyNum()+buyNum);
             myCart.put(productId,JSON.toJSONString(cartItem));
@@ -78,7 +75,7 @@ public class CartServiceImpl implements CartService {
 
 
     /**
-     * 清空购物车
+     * empty cart
      */
     @Override
     public void clear() {
@@ -89,7 +86,7 @@ public class CartServiceImpl implements CartService {
 
 
     /**
-     * 删除购物项
+     * delete items
      * @param productId
      */
     @Override
@@ -121,10 +118,8 @@ public class CartServiceImpl implements CartService {
     @Override
     public List<CartItemVO> confirmOrderCartItems(List<Long> productIdList) {
 
-        //获取全部购物车的购物项
         List<CartItemVO> cartItemVOList =  buildCartItem(true);
 
-        //根据需要的商品id进行过滤，并清空对应的购物项
         List<CartItemVO> resultList =  cartItemVOList.stream().filter(obj->{
 
             if(productIdList.contains(obj.getProductId())){
@@ -143,10 +138,8 @@ public class CartServiceImpl implements CartService {
     @Override
     public CartVO getMyCart() {
 
-        //获取全部购物项
         List<CartItemVO> cartItemVOList = buildCartItem(false);
 
-        //封装成cartvo
         CartVO cartVO = new CartVO();
         cartVO.setCartItems(cartItemVOList);
 
@@ -155,8 +148,8 @@ public class CartServiceImpl implements CartService {
 
 
     /**
-     * 获取最新的购物项，
-     * @param latestPrice 是否获取最新价格
+     * get the latest shopping items,
+     * @param latestPrice whether to get the latest price
      * @return
      */
     private List<CartItemVO> buildCartItem(boolean latestPrice) {
@@ -167,7 +160,6 @@ public class CartServiceImpl implements CartService {
 
         List<CartItemVO> cartItemVOList = new ArrayList<>();
 
-        //拼接id列表查询最新价格
         List<Long> productIdList = new ArrayList<>();
 
         for(Object item: itemList){
@@ -177,7 +169,6 @@ public class CartServiceImpl implements CartService {
             productIdList.add(cartItemVO.getProductId());
         }
 
-        //查询最新的商品价格
         if(latestPrice){
 
             setProductLatestPrice(cartItemVOList,productIdList);
@@ -188,16 +179,14 @@ public class CartServiceImpl implements CartService {
     }
 
     /**
-     * 设置商品最新价格
+     * set the lasted price of the item
      * @param cartItemVOList
      * @param productIdList
      */
     private void setProductLatestPrice(List<CartItemVO> cartItemVOList, List<Long> productIdList) {
 
-        //批量查询
         List<ProductVO> productVOList = productService.findProductsByIdBatch(productIdList);
 
-        //分组
         Map<Long,ProductVO> maps = productVOList.stream().collect(Collectors.toMap(ProductVO::getId,Function.identity()));
 
 
@@ -215,7 +204,7 @@ public class CartServiceImpl implements CartService {
 
 
     /**
-     * 抽取我的购物车，通用方法
+     * extract my cart, common method
      * @return
      */
     private BoundHashOperations<String,Object,Object> getMyCartOps(){
@@ -225,7 +214,7 @@ public class CartServiceImpl implements CartService {
 
 
     /**
-     * 购物车 key
+     * cart key
      * @return
      */
     private String getCartKey(){
