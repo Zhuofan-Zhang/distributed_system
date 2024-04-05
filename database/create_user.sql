@@ -1,3 +1,4 @@
+use cafe_user;
 DROP TABLE IF EXISTS `user`;
 
 CREATE TABLE `user` (

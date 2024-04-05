@@ -1,10 +1,11 @@
+USE cafe_user;
 DROP TABLE IF EXISTS `address`;
 
 CREATE TABLE `address` (
                            `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
                            `user_id` bigint(20) DEFAULT NULL COMMENT '用户id',
                            `default_status` int(1) DEFAULT NULL COMMENT '是否默认收货地址：0->否；1->是',
-                           `receive_name` varchar(64) DEFAULT NULL COMMENT '收发货人姓名',
+                           `receiver_name` varchar(64) DEFAULT NULL COMMENT '收发货人姓名',
                            `phone` varchar(64) DEFAULT NULL COMMENT '收货人电话',
                            `state` varchar(64) DEFAULT NULL COMMENT '省/直辖市',
                            `city` varchar(64) DEFAULT NULL COMMENT '市',
@@ -17,7 +18,7 @@ CREATE TABLE `address` (
 LOCK TABLES `address` WRITE;
 /*!40000 ALTER TABLE `address` DISABLE KEYS */;
 
-INSERT INTO `address` (`id`, `user_id`, `default_status`, `receive_name`, `phone`, `state`, `city`, `district`, `detailed_address`, `create_at`)
+INSERT INTO `address` (`id`, `user_id`, `default_status`, `receiver_name`, `phone`, `state`, `city`, `district`, `detailed_address`, `create_at`)
 VALUES
     (39,3,0,'小滴课堂-隔壁老王','12321312321','广东省','广州市','天河区','运营中心-老王隔壁1号','2021-02-05 10:48:45'),
     (40,3,0,'小滴课堂-隔壁老王','12321312321','广东省','广州市','天河区','运营中心-老王隔壁2号','2021-02-05 10:49:32'),

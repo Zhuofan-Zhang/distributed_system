@@ -1,3 +1,4 @@
+use cafe_coupon;
 DROP TABLE IF EXISTS `coupon`;
 
 CREATE TABLE `coupon` (
@@ -34,7 +35,7 @@ DROP TABLE IF EXISTS `coupon_record`;
 CREATE TABLE `coupon_record` (
                                  `id` bigint(11) unsigned NOT NULL AUTO_INCREMENT,
                                  `coupon_id` bigint(11) DEFAULT NULL COMMENT '优惠券id',
-                                 `create_at` datetime DEFAULT NULL COMMENT '创建时间获得时间',
+                                 `created_at` datetime DEFAULT NULL COMMENT '创建时间获得时间',
                                  `usage_state` varchar(32) DEFAULT NULL COMMENT '使用状态  可用 NEW,已使用USED,过期 EXPIRED;',
                                  `user_id` bigint(11) DEFAULT NULL COMMENT '用户id',
                                  `user_name` varchar(128) DEFAULT NULL COMMENT '用户昵称',
@@ -49,7 +50,7 @@ CREATE TABLE `coupon_record` (
 
 LOCK TABLES `coupon_record` WRITE;
 
-INSERT INTO `coupon_record` (`id`, `coupon_id`, `create_at`, `usage_state`, `user_id`, `user_name`, `coupon_title`, `valid_from`, `valid_until`, `order_id`, `price_deducted`, `condition_price`)
+INSERT INTO `coupon_record` (`id`, `coupon_id`, `created_at`, `usage_state`, `user_id`, `user_name`, `coupon_title`, `valid_from`, `valid_until`, `order_id`, `price_deducted`, `condition_price`)
 VALUES
     (1,19,'2021-02-18 10:37:42','NEW',3,'Anna小姐姐','有效中-21年1月到25年1月-20元满减-5元抵扣劵-限领取2张-不可叠加使用','2000-01-29 00:00:00','2025-01-29 00:00:00',NULL,5.00,20.00),
     (7,19,'2021-02-18 10:37:44','NEW',3,'Anna小姐姐','有效中-21年1月到25年1月-20元满减-5元抵扣劵-限领取2张-不可叠加使用','2000-01-29 00:00:00','2025-01-29 00:00:00',NULL,5.00,20.00),

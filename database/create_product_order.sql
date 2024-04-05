@@ -1,4 +1,3 @@
-create schema cafe_order;
 use cafe_order;
 
 DROP TABLE IF EXISTS `product_order`;
@@ -25,7 +24,7 @@ LOCK TABLES `product_order` WRITE;
 
 INSERT INTO `product_order` (`id`, `out_trade_no`, `state`, `create_time`, `total_amount`, `pay_amount`, `pay_type`, `nickname`, `head_img`, `user_id`, `del`, `update_time`, `order_type`, `receiver_address`)
 VALUES
-    (2452,'9uIakxXHAgr0X33YMIyUmCotbKADcSQ6','PAY','2021-03-06 11:57:49',510.00,505.00,'ALIPAY','二当家小D-分布式事务---','https://xdclass-1024shop-img.oss-cn-shenzhen.aliyuncs.com/user/2021/02/03/39473aa1029a430298ac2620dd819962.jpeg',36,0,NULL,'DAILY','{\"city\":\"广州市\",\"defaultStatus\":0,\"detailAddress\":\"运营中心-老王隔壁5号\",\"id\":45,\"phone\":\"12321312321\",\"province\":\"广东省\",\"receiveName\":\"小滴课堂-隔壁老王\",\"region\":\"天河区\",\"userId\":36}'),
+    (2476,'9uIakxXHAgr0X33YMIyUmCotbKADcSQ6','PAY','2021-03-06 11:57:49',510.00,505.00,'ALIPAY','二当家小D-分布式事务---','https://xdclass-1024shop-img.oss-cn-shenzhen.aliyuncs.com/user/2021/02/03/39473aa1029a430298ac2620dd819962.jpeg',36,0,NULL,'DAILY',null),
     (2453,'9wnSzlQQ9KnCtyCJmsxLcMyZcs6MFmbW','CANCEL','2021-03-06 12:06:53',510.00,510.00,'ALIPAY','二当家小D-分布式事务---','https://xdclass-1024shop-img.oss-cn-shenzhen.aliyuncs.com/user/2021/02/03/39473aa1029a430298ac2620dd819962.jpeg',36,0,NULL,'DAILY','{\"city\":\"广州市\",\"defaultStatus\":0,\"detailAddress\":\"运营中心-老王隔壁5号\",\"id\":45,\"phone\":\"12321312321\",\"province\":\"广东省\",\"receiveName\":\"小滴课堂-隔壁老王\",\"region\":\"天河区\",\"userId\":36}'),
     (2454,'aHEuu6vnDIfJ9gMUeHkO3LwiCkgoLxmQ','PAY','2021-03-07 11:13:10',510.00,510.00,'ALIPAY','二当家小D-分布式事务---','https://xdclass-1024shop-img.oss-cn-shenzhen.aliyuncs.com/user/2021/02/03/39473aa1029a430298ac2620dd819962.jpeg',36,0,NULL,'DAILY','{\"city\":\"广州市\",\"defaultStatus\":0,\"detailAddress\":\"运营中心-老王隔壁5号\",\"id\":45,\"phone\":\"12321312321\",\"province\":\"广东省\",\"receiveName\":\"小滴课堂-隔壁老王\",\"region\":\"天河区\",\"userId\":36}'),
     (2455,'6eBBzmFJsmhWYezusEPb2s8VGbkj44SF','CANCEL','2021-03-07 11:17:12',510.00,510.00,'ALIPAY','二当家小D-分布式事务---','https://xdclass-1024shop-img.oss-cn-shenzhen.aliyuncs.com/user/2021/02/03/39473aa1029a430298ac2620dd819962.jpeg',36,0,NULL,'DAILY','{\"city\":\"广州市\",\"defaultStatus\":0,\"detailAddress\":\"运营中心-老王隔壁5号\",\"id\":45,\"phone\":\"12321312321\",\"province\":\"广东省\",\"receiveName\":\"小滴课堂-隔壁老王\",\"region\":\"天河区\",\"userId\":36}'),
