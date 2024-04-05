@@ -78,7 +78,7 @@
                                 <assembly>
                                     <descriptorRef>artifact</descriptorRef>
                                 </assembly>
-                                <cmd>java -jar maven/distributed-product-services.jar</cmd>
+                                <cmd>java -jar maven/distributed-product-service.jar</cmd>
                             </build>
                         </image>
                     </images>

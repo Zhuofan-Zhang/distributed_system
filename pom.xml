@@ -38,7 +38,7 @@
         <commons.codec.version>1.15</commons.codec.version>
         <springfox.boot.starter.version>3.0.0</springfox.boot.starter.version>
 
-        <docker.image.prefix>distributed-cloud</docker.image.prefix>
+        <docker.image.prefix>distributed_system</docker.image.prefix>
 
         <!--跳过单元测试-->
         <skipTests>true</skipTests>
