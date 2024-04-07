@@ -11,14 +11,14 @@ CREATE TABLE `address` (
                            `city` varchar(64) DEFAULT NULL COMMENT '市',
                            `district` varchar(64) DEFAULT NULL COMMENT '区',
                            `detailed_address` varchar(200) DEFAULT NULL COMMENT '详细地址',
-                           `create_at` datetime DEFAULT NULL,
+                           `created_at` datetime DEFAULT NULL,
                            PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 LOCK TABLES `address` WRITE;
 /*!40000 ALTER TABLE `address` DISABLE KEYS */;
 
-INSERT INTO `address` (`id`, `user_id`, `default_status`, `receiver_name`, `phone`, `state`, `city`, `district`, `detailed_address`, `create_at`)
+INSERT INTO `address` (`id`, `user_id`, `default_status`, `receiver_name`, `phone`, `state`, `city`, `district`, `detailed_address`, `created_at`)
 VALUES
     (39,3,0,'小滴课堂-隔壁老王','12321312321','广东省','广州市','天河区','运营中心-老王隔壁1号','2021-02-05 10:48:45'),
     (40,3,0,'小滴课堂-隔壁老王','12321312321','广东省','广州市','天河区','运营中心-老王隔壁2号','2021-02-05 10:49:32'),
