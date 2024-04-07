@@ -45,8 +45,8 @@ feign:
   client:
     config:
       default:
-        connectTimeout: 10000 # Connection timeout in milliseconds
-        readTimeout: 30000 # Read timeout in milliseconds
+        connectTimeout: 60000 # Connection timeout in milliseconds
+        readTimeout: 60000 # Read timeout in milliseconds
 
 #设置日志级别,ERROR/WARN/INFO/DEBUG,默认是INFO以上才显示
 logging:
