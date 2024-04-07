@@ -1,0 +1,16 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: pod-kill-example
+  namespace: default
+spec:
+  action: pod-kill
+  mode: one
+  selector:
+    namespaces:
+      - default
+    labelSelectors:
+      app: distributed-coupon-service
+  duration: 30s
+#  scheduler:
+#    cron: '@every 30s'  # 这里设置了每30秒执行一次操作
