@@ -10,7 +10,7 @@ import java.util.List;
 public interface CouponRecordMapper extends BaseMapper<CouponRecordDO> {
 
     /**
-     * 批量更新优惠券使用记录
+     * query coupon record by user id
      * @param id
      * @param name
      * @param lockCouponRecordIds

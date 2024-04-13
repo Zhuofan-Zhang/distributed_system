@@ -5,38 +5,38 @@ spring:
   application:
     name: distributed-coupon-service
   cloud:
-    #注册中心地址
+    #nacos register config
     nacos:
       discovery:
         server-addr: 8.130.44.244:8848
 
-  #消息队列
+  #message queue config
   rabbitmq:
     host: 8.130.44.244
     port: 5672
     virtual-host: /
     password: password
     username: admin
-    #开启手动确认消息
+    #start listener
     listener:
       simple:
         acknowledge-mode: manual
 
-#数据库配置
+#mysql config
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://8.130.44.244:3306/cafe_coupon?allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: ds
     password: distributedsystem
 
-#redis 配置
+#redis config
   redis:
     host: 8.130.44.244
     port: 8000
     password: 123456
 
 
-#配置plus打印sql日志
+#mybatis config
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
@@ -48,26 +48,26 @@ feign:
         connectTimeout: 60000 # Connection timeout in milliseconds
         readTimeout: 60000 # Read timeout in milliseconds
 
-#设置日志级别,ERROR/WARN/INFO/DEBUG,默认是INFO以上才显示
+#logging config
 logging:
   level:
     root: INFO
 
 mqconfig:
-  #延迟队列，不能被监听消费
+  #delay queue config
   coupon_release_delay_queue: coupon.release.delay.queue
 
-  #延迟队列的消息过期后转发的队列
+  #release queue config
   coupon_release_queue: coupon.release.queue
 
-  #交换机
+  #exchange config
   coupon_event_exchange: coupon.event.exchange
 
-  #进入延迟队列的路由key
+  #coupon release delay routing key
   coupon_release_delay_routing_key: coupon.release.delay.routing.key
 
-  #消息过期，进入释放死信队列的key
+  #coupon release routing key
   coupon_release_routing_key: coupon.release.routing.key
 
-  #消息过期时间,毫秒,临时改为6分钟
+  #coupon release delay ttl
   ttl: 60000

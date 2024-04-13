@@ -46,7 +46,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring.boot.version}</version>
 
-                <!--需要加这个，不然打包镜像找不到启动文件-->
+                
                 <executions>
                     <execution>
                         <goals>
@@ -63,7 +63,7 @@
             </plugin>
 
             <plugin>
-                <!-- To run: mvn package docker:build -->
+                
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
                 <version>0.43.4</version>

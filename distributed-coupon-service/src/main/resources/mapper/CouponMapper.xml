@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.group10.mapper.CouponMapper">
 
-    <!-- 通用查询映射结果 -->
+   
     <resultMap id="BaseResultMap" type="com.group10.model.CouponDO">
         <result column="id" property="id" />
         <result column="category" property="category" />
@@ -19,7 +19,7 @@
         <result column="condition_price" property="conditionPrice" />
     </resultMap>
 
-    <!-- 通用查询结果列 -->
+   
     <sql id="Base_Column_List">
         id, category, publish, coupon_img, coupon_title, price_deducted, user_limit, valid_from, valid_until, inventory, remaining, created_at, condition_price
     </sql>

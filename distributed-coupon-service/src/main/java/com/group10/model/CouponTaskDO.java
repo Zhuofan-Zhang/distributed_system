@@ -21,22 +21,22 @@ public class CouponTaskDO implements Serializable {
     private Long id;
 
     /**
-     * 优惠券记录id
+     * coupon record id
      */
     private Long couponRecordId;
 
     /**
-     * 创建时间
+     * coupon creation time
      */
     private Date createTime;
 
     /**
-     * 订单号
+     * coupon trade number
      */
     private String outTradeNo;
 
     /**
-     * 锁定状态 锁定LOCK-完成FINISH 取消CANCEL
+     * coupon task status
      */
     private String lockState;
 

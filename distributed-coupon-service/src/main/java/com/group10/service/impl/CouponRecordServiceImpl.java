@@ -104,12 +104,12 @@ public class CouponRecordServiceImpl implements CouponRecordService {
 
         int insertRows = couponTaskMapper.insertBatch(couponTaskDOList);
 
-        log.info("优惠券记录锁定updateRows={}",updateRows);
-        log.info("新增优惠券记录task insertRows={}",insertRows);
+        log.info("Coupon record lock updateRows={}",updateRows);
+        log.info("Add coupon record task insertRows={}",insertRows);
 
 
         if(lockCouponRecordIds.size() == insertRows && insertRows==updateRows){
-            //发送延迟消息
+            //post message to rabbitmq
 
             for(CouponTaskDO couponTaskDO : couponTaskDOList){
                 CouponRecordMessage couponRecordMessage = new CouponRecordMessage();
@@ -117,7 +117,7 @@ public class CouponRecordServiceImpl implements CouponRecordService {
                 couponRecordMessage.setTaskId(couponTaskDO.getId());
 
                 rabbitTemplate.convertAndSend(rabbitMQConfig.getEventExchange(),rabbitMQConfig.getCouponReleaseDelayRoutingKey(),couponRecordMessage);
-                log.info("优惠券锁定消息发送成功:{}",couponRecordMessage.toString());
+                log.info("Coupon lock message sent successfully:{}",couponRecordMessage.toString());
             }
 
 
@@ -131,49 +131,50 @@ public class CouponRecordServiceImpl implements CouponRecordService {
     @Override
     public boolean releaseCouponRecord(CouponRecordMessage recordMessage) {
 
-        //查询下task是否存
+        //search task by id
         CouponTaskDO taskDO = couponTaskMapper.selectOne(new QueryWrapper<CouponTaskDO>().eq("id",recordMessage.getTaskId()));
 
         if(taskDO==null){
-            log.warn("工作单不存，消息:{}",recordMessage);
+            log.warn("The work order is not saved, message:{}",recordMessage);
             return true;
         }
 
-        //lock状态才处理
+        //only process the lock state is LOCK
         if(taskDO.getLockState().equalsIgnoreCase(StockTaskStateEnum.LOCK.name())){
 
-            //查询订单状态
+            //search order state
             JsonData jsonData = orderFeignSerivce.queryProductOrderState(recordMessage.getOutTradeNo());
             if(jsonData.getCode()==0){
-                //正常响应，判断订单状态
+                //result is success
                 String state = jsonData.getData().toString();
                 if(ProductOrderStateEnum.NEW.name().equalsIgnoreCase(state)){
-                    //状态是NEW新建状态，则返回给消息队，列重新投递
-                    log.warn("订单状态是NEW,返回给消息队列，重新投递:{}",recordMessage);
+                    //if the order state is NEW, return to the message queue and re-deliver
+                    log.warn("if the order state is NEW, return to the message queue and re-deliver:{}",recordMessage);
                     return false;
                 }
 
-                //如果是已经支付
+                //if the order is paid, modify the task status to finish
                 if(ProductOrderStateEnum.PAY.name().equalsIgnoreCase(state)){
-                    //如果已经支付，修改task状态为finish
+                    //if the order is paid, modify the task status to finish
                     taskDO.setLockState(StockTaskStateEnum.FINISH.name());
                     couponTaskMapper.update(taskDO,new QueryWrapper<CouponTaskDO>().eq("id",recordMessage.getTaskId()));
-                    log.info("订单已经支付，修改库存锁定工作单FINISH状态:{}",recordMessage);
+                    log.info("f the order is paid, modify the task status to finish:{}",recordMessage);
                     return true;
                 }
             }
 
-            //订单不存在，或者订单被取消，确认消息,修改task状态为CANCEL,恢复优惠券使用记录为NEW
-            log.warn("订单不存在，或者订单被取消，确认消息,修改task状态为CANCEL,恢复优惠券使用记录为NEW,message:{}",recordMessage);
+            //if the order is not found or the order is canceled, confirm the message, modify the task status to CANCEL, and restore the coupon usage record to NEW
+            log.warn("if the order is not found or the order is canceled, confirm the message, modify the task status to CANCEL, and restore the coupon usage record to NEW\n" + //
+                                ":{}",recordMessage);
             taskDO.setLockState(StockTaskStateEnum.CANCEL.name());
 
             couponTaskMapper.update(taskDO,new QueryWrapper<CouponTaskDO>().eq("id",recordMessage.getTaskId()));
-            //恢复优惠券记录是NEW状态
+            //restore the coupon usage record to NEW
             couponRecordMapper.updateState(taskDO.getCouponRecordId(),CouponStateEnum.NEW.name());
 
             return true;
         }else {
-            log.warn("工作单状态不是LOCK,state={},消息体={}",taskDO.getLockState(),recordMessage);
+            log.warn("The work order status is not LOCK,state={},message={}",taskDO.getLockState(),recordMessage);
             return true;
         }
     }
