@@ -75,7 +75,7 @@ public class CouponServiceImpl implements CouponService {
         rLock.lock();
 
 
-        log.info("领劵接口加锁成功:{}", Thread.currentThread().getId());
+        log.info("The coupon interface is locked successfully:{}", Thread.currentThread().getId());
         try {
             validateAndUpdateCouponRecord(couponId, category);
         } finally {
@@ -145,17 +145,17 @@ public class CouponServiceImpl implements CouponService {
             throw new BizException(BizCodeEnum.COUPON_NO_EXITS);
         }
 
-        //库存是否足够
+        //remaining stock is greater than 0
         if (couponDO.getRemaining() <= 0) {
             throw new BizException(BizCodeEnum.COUPON_NO_STOCK);
         }
 
-        //判断是否是否发布状态
+        //estimate the coupon is published
         if (!couponDO.getPublish().equals(CouponPublishEnum.PUBLISH.name())) {
             throw new BizException(BizCodeEnum.COUPON_GET_FAIL);
         }
 
-        //是否在领取时间范围
+        //coupon is in the valid time
         long time = CommonUtil.getCurrentTimestamp();
         long start = couponDO.getValidFrom().getTime();
         long end = couponDO.getValidUntil().getTime();
@@ -163,7 +163,7 @@ public class CouponServiceImpl implements CouponService {
             throw new BizException(BizCodeEnum.COUPON_OUT_OF_TIME);
         }
 
-        //用户是否超过限制
+        //user limit is greater than 0
         int recordNum = couponRecordMapper.selectCount(new QueryWrapper<CouponRecordDO>()
                 .eq("coupon_id", couponDO.getId())
                 .eq("user_id", userId));

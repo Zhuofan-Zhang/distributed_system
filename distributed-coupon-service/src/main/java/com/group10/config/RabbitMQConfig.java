@@ -21,49 +21,49 @@ public class RabbitMQConfig {
 
 
     /**
-     * 交换机
+     * interchanger name
      */
     @Value("${mqconfig.coupon_event_exchange}")
     private String eventExchange;
 
 
     /**
-     * 第一个队列  延迟队列，
+     * the first queue, delay queue
      */
     @Value("${mqconfig.coupon_release_delay_queue}")
     private String couponReleaseDelayQueue;
 
     /**
-     * 第一个队列的路由key
-     * 进入队列的路由key
+     * the first queue's routing key
+     * that is the key to enter the dead letter queue
      */
     @Value("${mqconfig.coupon_release_delay_routing_key}")
     private String couponReleaseDelayRoutingKey;
 
 
     /**
-     * 第二个队列，被监听恢复库存的队列
+     * the second queue
      */
     @Value("${mqconfig.coupon_release_queue}")
     private String couponReleaseQueue;
 
     /**
-     * 第二个队列的路由key
+     * the second queue's routing key
      *
-     * 即进入死信队列的路由key
+     * that is the key to enter the dead letter queue
      */
     @Value("${mqconfig.coupon_release_routing_key}")
     private String couponReleaseRoutingKey;
 
     /**
-     * 过期时间
+     * the time to live
      */
     @Value("${mqconfig.ttl}")
     private Integer ttl;
 
 
     /**
-     * 消息转换器
+     * message converter
      * @return
      */
     @Bean
@@ -73,8 +73,8 @@ public class RabbitMQConfig {
 
 
     /**
-     * 创建交换机 Topic类型，也可以用dirct路由
-     * 一般一个微服务一个交换机
+     * create a exchange
+     * get the exchange from the configuration file
      * @return
      */
     @Bean
@@ -84,7 +84,7 @@ public class RabbitMQConfig {
 
 
     /**
-     * 延迟队列
+     * create a delay queue
      */
     @Bean
     public Queue couponReleaseDelayQueue(){
@@ -99,7 +99,7 @@ public class RabbitMQConfig {
 
 
     /**
-     * 死信队列，普通队列，用于被监听
+     * dead letter queue
      */
     @Bean
     public Queue couponReleaseQueue(){
@@ -110,7 +110,7 @@ public class RabbitMQConfig {
 
 
     /**
-     * 第一个队列，即延迟队列的绑定关系建立
+     * the first queue binding relationship
      * @return
      */
     @Bean
@@ -120,7 +120,7 @@ public class RabbitMQConfig {
     }
 
     /**
-     * 死信队列绑定关系建立
+     * the second queue binding relationship
      * @return
      */
     @Bean

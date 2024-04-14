@@ -9,7 +9,7 @@ import java.util.List;
 public interface CouponTaskMapper extends BaseMapper<CouponTaskDO> {
 
     /**
-     * 批量插入
+     * insert batch
      * @param couponTaskDOList
      * @return
      */

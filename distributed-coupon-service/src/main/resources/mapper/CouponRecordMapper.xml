@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.group10.mapper.CouponRecordMapper">
 
-    <!-- 通用查询映射结果 -->
+    
     <resultMap id="BaseResultMap" type="com.group10.model.CouponRecordDO">
         <result column="id" property="id" />
         <result column="coupon_id" property="couponId" />
@@ -18,12 +18,12 @@
         <result column="condition_price" property="conditionPrice" />
     </resultMap>
 
-    <!-- 通用查询结果列 -->
+    
     <sql id="Base_Column_List">
         id, coupon_id, created_at, usage_state, user_id, user_name, coupon_title, valid_from, valid_until, order_id, price_deducted, condition_price
     </sql>
 
-    <!--批量锁定优惠券记录-->
+   
     <update id="lockUseStateBatch">
 
         update coupon_record set usage_state=#{useState} where user_id=#{userId} and usage_state='NEW'
@@ -36,7 +36,7 @@
     </update>
 
 
-    <!--更新优惠券状态-->
+   
     <update id="updateState">
 
         update coupon_record set usage_state = #{useState} where id = #{couponRecordId}

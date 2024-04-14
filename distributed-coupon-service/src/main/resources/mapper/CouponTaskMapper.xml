@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.group10.mapper.CouponTaskMapper">
 
-    <!-- 通用查询映射结果 -->
+    
     <resultMap id="BaseResultMap" type="com.group10.model.CouponTaskDO">
         <id column="id" property="id" />
         <result column="coupon_record_id" property="couponRecordId" />
@@ -11,18 +11,18 @@
         <result column="lock_state" property="lockState" />
     </resultMap>
 
-    <!-- 通用查询结果列 -->
+    
     <sql id="Base_Column_List">
         id, coupon_record_id, create_time, out_trade_no, lock_state
     </sql>
 
 
-    <!-- 通用查询结果列 -->
+    
     <sql id="Base_Column_List_No_Id">
         coupon_record_id, create_time, out_trade_no, lock_state
     </sql>
 
-    <!--批量插入-->
+    
     <insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
 
         insert into coupon_task

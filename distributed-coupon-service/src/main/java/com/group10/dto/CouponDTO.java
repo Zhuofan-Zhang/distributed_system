@@ -17,65 +17,65 @@ public class CouponDTO {
     private Long id;
 
     /**
-     * 优惠卷类型[NEW_USER注册赠券，TASK任务卷，PROMOTION促销劵]
+     * coupon category
      */
     private String category;
 
 
 
     /**
-     * 优惠券图片
+     * coupon description
      */
     @JsonProperty("coupon_img")
     private String couponImg;
 
     /**
-     * 优惠券标题
+     * coupon title
      */
     @JsonProperty("coupon_title")
     private String couponTitle;
 
     /**
-     * 抵扣价格
+     * coupon price
      */
     @JsonProperty("price_deducted")
     private BigDecimal priceDeducted;
 
     /**
-     * 每人限制张数
+     * coupon user limit
      */
     @JsonProperty("user_limit")
     private Integer userLimit;
 
     /**
-     * 优惠券开始有效时间
+     * coupon start time
      */
     @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss",locale = "zh",timezone = "GMT+8")
     @JsonProperty("valid_from")
     private Date validFrom;
 
     /**
-     * 优惠券失效时间
+     * coupon end time
      */
     @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss",locale = "zh",timezone = "GMT+8")
     @JsonProperty("valid_until")
     private Date validUntil;
 
     /**
-     * 优惠券总量
+     * coupon amount
      */
     @JsonProperty("inventory")
     private Integer inventory;
 
     /**
-     * 库存
+     * coupon remaining
      */
     private Integer remaining;
 
 
 
     /**
-     * 满多少才可以使用
+     * coupon condition
      */
     @JsonProperty("condition_price")
     private BigDecimal conditionPrice;

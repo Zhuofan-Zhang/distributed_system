@@ -23,12 +23,12 @@ public class CouponMQListener {
 
     /**
      *
-     * 重复消费-幂等性
+     * repeat consumption problem:
      *
-     * 消费失败，重新入队后最大重试次数：
-     *  如果消费失败，不重新入队，可以记录日志，然后插到数据库人工排查
+     * message consumption is not idempotent, so it is necessary to ensure that the message is consumed only once
+     *  if the message is consumed successfully, the message will be confirmed
      *
-     *  消费者这块还有啥问题，大家可以先想下，然后给出解决方案
+     *  if the message is not consumed successfully, the message will be rejected
      *
      * @param recordMessage
      * @param message
@@ -38,22 +38,22 @@ public class CouponMQListener {
     @RabbitHandler
     public void releaseCouponRecord(CouponRecordMessage recordMessage, Message message, Channel channel) throws IOException {
 
-        log.info("监听到消息：releaseCouponRecord消息内容：{}", recordMessage);
+        log.info("Message heard：releaseCouponRecord：{}", recordMessage);
         long msgTag = message.getMessageProperties().getDeliveryTag();
 
         boolean flag = couponRecordService.releaseCouponRecord(recordMessage);
 
         try {
             if (flag) {
-                //确认消息消费成功
+                //comfirm message
                 channel.basicAck(msgTag, false);
             }else {
-                log.error("释放优惠券失败 flag=false,{}",recordMessage);
+                log.error("Coupon release failed flag=false,{}",recordMessage);
                 channel.basicReject(msgTag,true);
             }
 
         } catch (IOException e) {
-            log.error("释放优惠券记录异常:{},msg:{}",e,recordMessage);
+            log.error("Exception in releasing coupon record:{},msg:{}",e,recordMessage);
             channel.basicReject(msgTag,true);
         }
 

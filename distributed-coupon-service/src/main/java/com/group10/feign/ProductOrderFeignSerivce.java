@@ -10,7 +10,7 @@ public interface ProductOrderFeignSerivce {
 
 
     /**
-     * 查询订单状态
+     * query product order state
      * @param outTradeNo
      * @return
      */
